@@ -1,5 +1,8 @@
 # title: Visualization in R with 'ggplot2'
-# author: Data Carpentry contributors + modified by Claire M. Curry (OU Libraries - cmcurry@ou.edu)
+# author: Data Carpentry contributors (www.datacarpentry.org) +
+# modified by Claire M. Curry (OU Libraries - cmcurry@ou.edu) 
+# under CC BY 4.0 and MIT licenses for instructional materials and software
+
 # minutes: 150
 
 # > ### Learning Objectives
