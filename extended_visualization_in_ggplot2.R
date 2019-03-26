@@ -373,6 +373,8 @@ yearly_sex_counts <- surveys_complete %>%
 yearly_sex_weight <- surveys_complete %>%
     group_by(year, sex, species_id) %>%
     summarize(avg_weight = mean(weight))
+
+
 ggplot(data = yearly_sex_weight, 
        mapping = aes(x = year, 
                      y = avg_weight,
