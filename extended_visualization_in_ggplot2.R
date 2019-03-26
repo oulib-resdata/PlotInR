@@ -125,15 +125,11 @@ ggplot(data = surveys_complete, mapping = aes(x = weight, y = hindfoot_length)) 
 
 # Assign plot to a variable
 surveys_plot <- ggplot(data = surveys_complete, 
-                       mapping = aes(x = weight, y = hindfoot_length))
+                       mapping = aes(x = weight, 
+                                     y = hindfoot_length))
+# note it doesn't print since it's assigned to an object.
 
 # Draw the plot
-surveys_plot + 
-    geom_point()
-
-
-# Create a ggplot and draw it
-surveys_plot <- ggplot(data = surveys_complete, mapping = aes(x = weight, y = hindfoot_length))
 surveys_plot + 
     geom_point()
 
@@ -165,7 +161,9 @@ surveys_plot
 # Building plots with **`ggplot2`** is typically an iterative process. We start by
 # defining the dataset we'll use, lay out the axes, and choose a geom:
 
-ggplot(data = surveys_complete, mapping = aes(x = weight, y = hindfoot_length)) +
+ggplot(data = surveys_complete,
+       mapping = aes(x = weight,
+                     y = hindfoot_length)) +
     geom_point()
 
 # 
@@ -173,20 +171,18 @@ ggplot(data = surveys_complete, mapping = aes(x = weight, y = hindfoot_length)) 
 # instance, we can add transparency (`alpha`) to avoid overplotting:
 
 
-ggplot(data = surveys_complete, mapping = aes(x = weight, y = hindfoot_length)) +
+ggplot(data = surveys_complete,
+       mapping = aes(x = weight, 
+                     y = hindfoot_length)) +
     geom_point(alpha = 0.1)
 
 
 # We can also add colors for all the points:
-
-
 ggplot(data = surveys_complete, mapping = aes(x = weight, y = hindfoot_length)) +
     geom_point(alpha = 0.1, color = "blue")
 
 
 # To color each species in the plot differently, you could use a vector as an input to the argument **color**. **`ggplot2`** will provide a different color corresponding to different values in the vector. Here is an example where we color with **`species_id`**:
-
-
 
 ggplot(data = surveys_complete, 
        mapping = aes(x = weight,
@@ -196,8 +192,6 @@ ggplot(data = surveys_complete,
 
 
 # We can also specify the colors directly inside the mapping provided in the `ggplot()` function. This will be seen by any geom layers and the mapping will be determined by the x- and y-axis set up in `aes()`.
-
-
 ggplot(data = surveys_complete, 
        mapping = aes(x = weight,
                      y = hindfoot_length,
@@ -206,18 +200,11 @@ ggplot(data = surveys_complete,
 
 
 # Notice that we can change the geom layer and colors will be still determined by **`species_id`**
-
-
-  
 ggplot(data = surveys_complete,
        mapping = aes(x = weight,
                      y = hindfoot_length,
                      color = species_id)) +
     geom_jitter(alpha = 0.1)
-
-
-
-
 
 # > ### Challenge
 # >
@@ -232,8 +219,9 @@ ggplot(data = surveys_complete,
 
 
 # ## Boxplot
-# 
-# We can use boxplots to visualize the distribution of weight within each species:
+# A more appropriate way to visualize data in categories is boxplots.
+# Let's use boxplots to visualize the distribution of weight 
+# within each species:
 
 ggplot(data = surveys_complete,
        mapping = aes(x = species_id,
@@ -309,8 +297,6 @@ ggplot(data = yearly_counts,
 
 
 # We will be able to distinguish species in the plot if we add colors (using `color` also automatically groups the data):
-
-
 ggplot(data = yearly_counts,
        mapping = aes(x = year,
                      y = n,
@@ -319,44 +305,98 @@ ggplot(data = yearly_counts,
 
 
 # ## Add measures of variation and summaries to your plots
-# 
-geom_dotplot()
-geom_errorbar()
+# You can manually summarize your data as we did above,
+# OR you could use the stat argument in geom_line.
+ggplot(data = surveys_complete,
+       mapping = aes(x = year,
+                     color = species_id)) +
+  geom_line(stat = "count")
+
+#geom and stat work very similarly.
+
+ggplot(surveys_complete,
+       aes(genus,
+           weight,
+           color = plot_type)) +
+  geom_point(stat='summary', 
+             fun.y=mean)
+
+
+# It's related to the stat_summary() layer. 
+# Here we'll summarize means and standard deviations 
+# for one continuous variable and one categorical variable.
+ggplot(surveys_complete,
+       aes(genus,
+           weight,
+           color = plot_type)) +
+  stat_summary(geom = "errorbar", 
+               fun.y = mean,
+               fun.ymax = function (x) {mean (x) + sd(x, na.rm = TRUE)},
+               fun.ymin = function (x) {mean (x) - sd(x, na.rm = TRUE)})+
+  stat_summary(geom = "point",
+               fun.y = mean,
+               size = 5)
+
+
+
+# We can fix the overlap by setting displacement width
+
+#We'll make sure both the point and the error bars match up.
+dodge_width_for_genera <- 0.9
+
+ggplot(surveys_complete,
+       aes(genus,
+           weight,
+           color = plot_type)) +
+  stat_summary(geom = "errorbar", 
+               fun.y = mean,
+               fun.ymax = function (x) {mean (x) + sd(x, na.rm = TRUE)},
+               fun.ymin = function (x) {mean (x) - sd(x, na.rm = TRUE)},
+               position = position_dodge(width = dodge_width_for_genera))+
+  stat_summary(geom = "point",
+               fun.y = mean,
+               size = 5,
+               position = position_dodge(width = dodge_width_for_genera))
+
+# This is just a brief introduction to the changes you can do
+# with stat and stat_summary.  What to do will depend on your
+# plotting needs.
+
+# Challenge
+
+# Take five minutes to experience changing the ymax and ymin functions,
+# along with fun.y, to see how it changes your plot.
+# Be ready to chime in with your experience at the end of this time.
 
 # ## Faceting
 # 
 # **`ggplot2`** has a special technique called *faceting* that allows the user to split one
 # plot into multiple plots based on a factor included in the dataset. We will use it to
 # make a time series plot for each species:
-
-
-ggplot(data = yearly_counts,
+# We'll take the previous color-based plot and add a layer called
+# facet wrap.
+ggplot(data = surveys_complete,
        mapping = aes(x = year,
-                     y = n)) +
-    geom_line() +
-    facet_wrap(~ species_id)
+                     color = species_id)) +
+  geom_line(stat = "count") +
+  facet_wrap(~ species_id)
+
+#Remove color = species_id to remove this extra piece of info.
+ggplot(data = surveys_complete,
+       mapping = aes(x = year)) +
+  geom_line(stat = "count") +
+  facet_wrap(~ species_id)
 
 
 # Now we would like to split the line in each plot by the sex of each individual
 # measured. To do that we need to make counts in the data frame grouped by `year`,
 # `species_id`, and `sex`:
-
-yearly_sex_counts <- surveys_complete %>%
-                      count(year,
-                            species_id,
-                            sex)
-
-
 # We can now make the faceted plot by splitting further by sex using `color` (within a single plot):
-
-
- ggplot(data = yearly_sex_counts,
-        mapping = aes(x = year,
-                      y = n, 
-                      color = sex)) +
-     geom_line() +
-     facet_wrap(~ species_id)
-
+ggplot(data = surveys_complete,
+       mapping = aes(x = year,
+                     color = sex)) +
+  geom_line(stat = "count") +
+  facet_wrap(~ species_id)
 
 
 # The `facet_wrap` geometry extracts plots into an arbitrary number of dimensions
@@ -370,11 +410,14 @@ yearly_sex_counts <- surveys_complete %>%
 
   
 # One column, facet by rows
-yearly_sex_weight <- surveys_complete %>%
-    group_by(year, sex, species_id) %>%
-    summarize(avg_weight = mean(weight))
+# Let's go back to the mean weight data.frame.
 
-
+ # #Let's make a data.frame with means.
+ # yearly_sex_weight <- surveys_complete %>%
+ #   group_by(year, sex, species_id) %>%
+ #   summarize(avg_weight = mean(weight))
+ 
+ 
 ggplot(data = yearly_sex_weight, 
        mapping = aes(x = year, 
                      y = avg_weight,
@@ -472,19 +515,24 @@ n + scale_fill_grey(start = 0.2, end = 0.8, na.value = "red")
 
 
 # We'll save the main plot as an object so we don't have to retype it to test each aes().
-points_plot <- ggplot(data = surveys_complete, mapping = aes(x = weight, y = hindfoot_length))
+points_plot <- ggplot(data = surveys_complete, 
+                      mapping = aes(x = weight, 
+                                    y = hindfoot_length))
 
 # Let's first test using default colors.
 points_plot +
-    geom_point(alpha = 0.1, color = plot_type)
+    geom_point(alpha = 0.1,
+               color = plot_type)
 # And then with RColorBrewer for a colorblind accessible palette.
 points_plot +
-    geom_point(alpha = 0.1, color = plot_type)+
+    geom_point(alpha = 0.1,
+               color = plot_type)+
   scale_color_brewer(palette = "Dark2")
 
 #Let's check the automated shapes.
 points_plot +
-    geom_point(alpha = 0.1, shape = plot_type)
+    geom_point(alpha = 0.1,
+               shape = plot_type)
   
 # We can now distinguish among the plot types regardless of color printing or color-related visual impairments, making the plot easier for all readers.  This principle is called [**universal design**](https://en.wikipedia.org/wiki/Universal_design).
 # ?pch will show you all shapes as does the ggplot2 cheatsheet.
@@ -521,7 +569,10 @@ ggplot(data = yearly_sex_counts,
 # The axes have more informative names, but their readability can be improved by
 # increasing the font size:
 
-ggplot(data = yearly_sex_counts, mapping = aes(x = year, y = n, color = sex)) +
+ggplot(data = yearly_sex_counts, 
+       mapping = aes(x = year,
+                     y = n, 
+                     color = sex)) +
     geom_line() +
     facet_wrap(~ species_id) +
     labs(title = "Observed species in time",
