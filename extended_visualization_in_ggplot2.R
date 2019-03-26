@@ -30,6 +30,39 @@ library(RColorBrewer)
 
 # 
 # Next, we download the data file and and load it into R.
+download.file(url="https://ndownloader.figshare.com/files/2292169",
+              destfile = "data/portal_data_joined.csv")
+
+# You are now ready to load the data:
+surveys <- read_csv("data/portal_data_joined.csv")
+
+# Set up data to plot.
+surveys_complete <- surveys %>%
+  filter(!is.na(weight),           # remove missing weight
+         !is.na(hindfoot_length),  # remove missing hindfoot_length
+         !is.na(sex))                # remove missing sex
+
+# Because we are interested in plotting how species abundances have changed through time,
+# we are also going to remove observations for rare species 
+# (i.e., that have been observed less than 50 times).
+# We will do this in two steps: first we are going to create a data set that counts
+# how often each species has been observed, and filter out the rare species;
+# then, we will extract only the observations for these more common species:
+  
+  ## Extract the most common species_id
+  species_counts <- surveys_complete %>%
+  count(species_id) %>% 
+  filter(n >= 50)
+
+## Only keep the most common species
+surveys_complete <- surveys_complete %>%
+  filter(species_id %in% species_counts$species_id)
+
+# To make sure that everyone has the same data set, check that surveys_complete has 
+# 30463 rows and 13 columns by typing dim(surveys_complete).
+# Now that our data set is ready, we can save it as a CSV file in our data_output folder.
+
+write_csv(surveys_complete, path = "data_output/surveys_complete.csv")
 
 surveys_complete <- read_csv("data_output/surveys_complete.csv")
 
