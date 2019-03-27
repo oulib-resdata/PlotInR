@@ -9,13 +9,15 @@
 # 
 # > * Overall: Build complex and customized plots from data in a data frame.
 # > * Produce appropriate plot types for your data
-#       * Create multiple types of plots: Produce scatter plots, boxplots, violin plots, and time series plots using ggplot.
+#       * Create multiple types of plots: Produce scatter plots, boxplots,
+#         violin plots, and time series plots using ggplot.
 # >     * Add measures of variation and summaries to plots.
 # >     * Describe what faceting is and apply faceting in ggplot.
 # > * Produce clear and accessible aesthetics and labels for your plot
 #       * Modify the aesthetics of an existing ggplot plot
 #         (including axis labels and color), focusing on
-#         accessibility (colorblind palettes, using shapes and line types, changing font size)
+#         accessibility (colorblind palettes, using shapes and 
+#         line types, changing font size)
 #         and clarity (removing grids)
 #       * Add and modify annotations and legends for clarity.
 
@@ -28,43 +30,7 @@
 library(tidyverse)
 library(RColorBrewer)
 
-# 
-# Next, we download the data file and and load it into R.
-download.file(url="https://ndownloader.figshare.com/files/2292169",
-              destfile = "data/portal_data_joined.csv")
-
-# You are now ready to load the data:
-surveys <- read_csv("data/portal_data_joined.csv")
-
-# Set up data to plot.
-surveys_complete <- surveys %>%
-  filter(!is.na(weight),           # remove missing weight
-         !is.na(hindfoot_length),  # remove missing hindfoot_length
-         !is.na(sex))                # remove missing sex
-
-# Because we are interested in plotting how species abundances have changed through time,
-# we are also going to remove observations for rare species 
-# (i.e., that have been observed less than 50 times).
-# We will do this in two steps: first we are going to create a data set that counts
-# how often each species has been observed, and filter out the rare species;
-# then, we will extract only the observations for these more common species:
-  
-  ## Extract the most common species_id
-  species_counts <- surveys_complete %>%
-  count(species_id) %>% 
-  filter(n >= 50)
-
-## Only keep the most common species
-surveys_complete <- surveys_complete %>%
-  filter(species_id %in% species_counts$species_id)
-
-# To make sure that everyone has the same data set, check that surveys_complete has 
-# 30463 rows and 13 columns by typing dim(surveys_complete).
-# Now that our data set is ready, we can save it as a CSV file in our data_output folder.
-
-write_csv(surveys_complete, path = "data_output/surveys_complete.csv")
-
-surveys_complete <- read_csv("data_output/surveys_complete.csv")
+# We will be using datasets included in base R and various packages to practice plotting today.
 
 # ## Plotting with **`ggplot2`**
 # 
@@ -92,13 +58,15 @@ surveys_complete <- read_csv("data_output/surveys_complete.csv")
 #       `data` argument
 # 
 
-ggplot(data = surveys_complete)
+ggplot(data = diamonds)
 
 
 # - define a mapping (using the aesthetic (`aes`) function), by selecting the variables to be plotted and specifying how to present them in the graph, e.g. as x/y positions or characteristics such as size, shape, color, etc.
 
 
-ggplot(data = surveys_complete, mapping = aes(x = weight, y = hindfoot_length))
+ggplot(data = diamonds,
+       mapping = aes(x = carat,
+                     y = price))
 
 # 
 # - add 'geoms' – graphical representations of the data in the plot (points,
@@ -113,7 +81,9 @@ ggplot(data = surveys_complete, mapping = aes(x = weight, y = hindfoot_length))
 # let's use `geom_point()` first:
 
 
-ggplot(data = surveys_complete, mapping = aes(x = weight, y = hindfoot_length)) +
+ggplot(data = diamonds,
+       mapping = aes(x = carat,
+                     y = price)) +
   geom_point()
 
 
@@ -124,13 +94,13 @@ ggplot(data = surveys_complete, mapping = aes(x = weight, y = hindfoot_length)) 
 
 
 # Assign plot to a variable
-surveys_plot <- ggplot(data = surveys_complete, 
-                       mapping = aes(x = weight, 
-                                     y = hindfoot_length))
+diamonds_plot <- ggplot(data = diamonds,
+                       mapping = aes(x = carat,
+                                     y = price))
 # note it doesn't print since it's assigned to an object.
 
 # Draw the plot
-surveys_plot + 
+diamonds_plot + 
     geom_point()
 
 # 
@@ -147,11 +117,11 @@ surveys_plot +
 # error message.
 # 
 # # This is the correct syntax for adding layers
-surveys_plot +
+diamonds_plot +
   geom_point()
 # 
 # # This will not add the new layer and will return an error message
-surveys_plot
+diamonds_plot
 + geom_point()
 
 
@@ -161,9 +131,7 @@ surveys_plot
 # Building plots with **`ggplot2`** is typically an iterative process. We start by
 # defining the dataset we'll use, lay out the axes, and choose a geom:
 
-ggplot(data = surveys_complete,
-       mapping = aes(x = weight,
-                     y = hindfoot_length)) +
+diamonds_plot +
     geom_point()
 
 # 
@@ -171,117 +139,145 @@ ggplot(data = surveys_complete,
 # instance, we can add transparency (`alpha`) to avoid overplotting:
 
 
-ggplot(data = surveys_complete,
-       mapping = aes(x = weight, 
-                     y = hindfoot_length)) +
+diamonds_plot +
     geom_point(alpha = 0.1)
 
 
 # We can also add colors for all the points:
-ggplot(data = surveys_complete, mapping = aes(x = weight, y = hindfoot_length)) +
-    geom_point(alpha = 0.1, color = "blue")
+diamonds_plot+
+    geom_point(alpha = 0.1,
+               color = "blue")
 
 
-# To color each species in the plot differently, you could use a vector as an input to the argument **color**. **`ggplot2`** will provide a different color corresponding to different values in the vector. Here is an example where we color with **`species_id`**:
-
-ggplot(data = surveys_complete, 
-       mapping = aes(x = weight,
-                     y = hindfoot_length)) +
+# To color groups in the plot differently, 
+# you could use a vector as an input to the argument **color**. 
+# **`ggplot2`** will provide a different color corresponding to 
+# different values in the vector. Here is an example where we 
+# color with **`cut`**, a categorical variable:
+diamonds_plot +
     geom_point(alpha = 0.1, 
-               aes(color = species_id))
+               aes(color = cut))
 
 
-# We can also specify the colors directly inside the mapping provided in the `ggplot()` function. This will be seen by any geom layers and the mapping will be determined by the x- and y-axis set up in `aes()`.
-ggplot(data = surveys_complete, 
-       mapping = aes(x = weight,
-                     y = hindfoot_length,
-                     color = species_id)) +
-    geom_point(alpha = 0.1)
+# We can also specify the aesthetics directly inside 
+# the mapping provided in the `ggplot()` function. 
+# This will be seen by any geom layers and the mapping 
+# will be determined by the x- and y-axis set up in `aes()`.
+# Here we'll use a different dataset and change another aes
+# called shape.
+ggplot(data = airquality, 
+       mapping = aes(x = Ozone,
+                     y = Wind,
+                     shape = as.factor(Month))) +
+    geom_point()
 
 
 # Notice that we can change the geom layer and colors will be still determined by **`species_id`**
-ggplot(data = surveys_complete,
-       mapping = aes(x = weight,
-                     y = hindfoot_length,
-                     color = species_id)) +
-    geom_jitter(alpha = 0.1)
+ggplot(data = airquality, 
+       mapping = aes(x = Ozone,
+                     y = Wind)) +
+  geom_point(aes(shape = as.factor(Month)))
 
 # > ### Challenge
 # >
-# > Use what you just learned to create a scatter plot of `weight` over
-# > `species_id` with the plot types showing in different colors. Is this a good
-# > way to show this type of data?
+# > Use what you just learned to create a scatter plot in the diamonds dataset
+# of `price` as the  y axis and `cut` as the x-axis,
+# Is this a good way to show this type of data?
 
-ggplot(data = surveys_complete, 
-       mapping = aes(x = species_id,
-                     y = weight)) +
-    geom_point(aes(color = plot_type))
+ggplot(data = diamonds, 
+       mapping = aes(x = cut,
+                     y = price)) +
+    geom_point()
 
 
 # ## Boxplot
 # A more appropriate way to visualize data in categories is boxplots.
-# Let's use boxplots to visualize the distribution of weight 
-# within each species:
+# Let's use boxplots to visualize the distribution of price within 
+# each cut of diamond:
 
-ggplot(data = surveys_complete,
-       mapping = aes(x = species_id,
-                     y = weight)) +
-    geom_boxplot()
-
+ggplot(data = diamonds, 
+       mapping = aes(x = cut,
+                     y = price)) +
+  geom_boxplot()
 
 # By adding points to boxplot, we can have a better idea of the number of
 # measurements and of their distribution:
 
-ggplot(data = surveys_complete, 
-       mapping = aes(x = species_id,
-                     y = weight)) +
+ggplot(data = diamonds, 
+       mapping = aes(x = cut,
+                     y = price)) +
     geom_boxplot(alpha = 0) +
     geom_jitter(alpha = 0.3, 
                 color = "tomato")
 
-# 
+# Challenge
 # Notice how the boxplot layer is behind the jitter layer? What do you need to
 # change in the code to put the boxplot in front of the points such that it's not
 # hidden?
-
+ggplot(data = diamonds, 
+       mapping = aes(x = cut,
+                     y = price)) +
+  geom_jitter(alpha = 0.3, 
+              color = "tomato") +
+  geom_boxplot(alpha = 0)
 
 ## Challenge with boxplots:
 ##  Start with the boxplot we created:
-ggplot(data = surveys_complete, 
-       mapping = aes(x = species_id, y = weight)) +
+ggplot(data = diamonds, 
+       mapping = aes(x = cut,
+                     y = price)) +
   geom_boxplot(alpha = 0) +
-  geom_jitter(alpha = 0.3, color = "tomato")
+  geom_jitter(alpha = 0.3, 
+              color = "tomato")
 
 ##  1. Replace the box plot with a violin plot; see `geom_violin()`.
+ggplot(data = diamonds, 
+       mapping = aes(x = cut,
+                     y = price)) +
+  geom_violin(alpha = 0)
 
 ##  2. Represent weight on the log10 scale; see `scale_y_log10()`.
+ggplot(data = diamonds, 
+       mapping = aes(x = cut,
+                     y = price)) +
+  geom_violin()+
+  scale_y_log10()
+# You will note that it doesn't change the label on the y axis to reflect the log transform.
+# Later we will change y-axis labels!
 
-##  3. Create boxplot for `hindfoot_length` overlaid on a jitter layer.
+##  3. Create boxplot for `price` and `cut` overlaid on a jitter layer.
+ggplot(data = diamonds, 
+       mapping = aes(x = cut,
+                     y = price)) +
+  geom_jitter(color = "black",
+              alpha = 0.5)+
+  geom_boxplot(alpha = 0.5)
 
 ##  4. Add color to the data points on your boxplot according to the
-##  plot from which the sample was taken (`plot_id`).
-##  *Hint:* Check the class for `plot_id`. Consider changing the class
-##  of `plot_id` from integer to factor. Why does this change how R
-##  makes the graph?
-
-
+##  color of the diamond (`color`).
+ggplot(data = diamonds, 
+       mapping = aes(x = cut,
+                     y = price)) +
+  geom_jitter(color = "black",
+              alpha = 0.5)+
+  geom_boxplot(alpha = 0.9,
+               aes(fill = color))
 
 
 # ## Plotting time series data
 # 
-# Let's calculate number of counts per year for each species. First we need
+# Let's calculate number of records per month for airquality. First we need
 # to group the data and count records within each group:
 
-yearly_counts <- surveys_complete %>%
-                 count(year, species_id)
+count_timeseries <- ChickWeight %>%
+                 count(Time, Diet)
 
 # 
 # Time series data can be visualized as a line plot with years on the x axis and counts
 # on the y axis:
-
-
-ggplot(data = yearly_counts, 
-       mapping = aes(x = year, y = n)) +
+ggplot(data = count_timeseries, 
+       mapping = aes(x = Time,
+                     y = n)) +
      geom_line()
 
 
@@ -289,46 +285,47 @@ ggplot(data = yearly_counts,
 # together. We need to tell ggplot to draw a line for each species by modifying
 # the aesthetic function to include `group = species_id`:
 
-ggplot(data = yearly_counts, 
-       mapping = aes(x = year, 
+ggplot(data = count_timeseries, 
+       mapping = aes(x = Time, 
                      y = n,
-                     group = species_id)) +
+                     group = Diet)) +
     geom_line()
 
 
 # We will be able to distinguish species in the plot if we add colors (using `color` also automatically groups the data):
-ggplot(data = yearly_counts,
-       mapping = aes(x = year,
+ggplot(data = count_timeseries,
+       mapping = aes(x = Time,
                      y = n,
-                     color = species_id)) +
+                     color = Diet)) +
     geom_line()
 
 
 # ## Add measures of variation and summaries to your plots
 # You can manually summarize your data as we did above,
 # OR you could use the stat argument in geom_line.
-ggplot(data = surveys_complete,
-       mapping = aes(x = year,
-                     color = species_id)) +
+ggplot(data = ChickWeight,
+       mapping = aes(x = Time,
+                     color = Diet)) +
   geom_line(stat = "count")
 
-#geom and stat work very similarly.
+#geom and stat work very similarly as you can see by this identical plot as previously.
 
-ggplot(surveys_complete,
-       aes(genus,
-           weight,
-           color = plot_type)) +
+#Other summary statistics are also available.
+ggplot(ChickWeight,
+       aes(x = Time,
+           y = weight,
+           color = Diet)) +
   geom_point(stat='summary', 
              fun.y=mean)
 
 
-# It's related to the stat_summary() layer. 
+# It's related to the stat_summary() layer that we'll try next. 
 # Here we'll summarize means and standard deviations 
 # for one continuous variable and one categorical variable.
-ggplot(surveys_complete,
-       aes(genus,
+ggplot(ChickWeight,
+       aes(x = Time,
            weight,
-           color = plot_type)) +
+           color = Diet)) +
   stat_summary(geom = "errorbar", 
                fun.y = mean,
                fun.ymax = function (x) {mean (x) + sd(x, na.rm = TRUE)},
@@ -340,23 +337,43 @@ ggplot(surveys_complete,
 
 
 # We can fix the overlap by setting displacement width
+# We'll make sure both the point and the error bars match up.
+dodge_width_for_diets <- 0.9
 
-#We'll make sure both the point and the error bars match up.
-dodge_width_for_genera <- 0.9
-
-ggplot(surveys_complete,
-       aes(genus,
+ggplot(ChickWeight,
+       aes(x = Time,
            weight,
-           color = plot_type)) +
+           color = Diet)) +
   stat_summary(geom = "errorbar", 
                fun.y = mean,
                fun.ymax = function (x) {mean (x) + sd(x, na.rm = TRUE)},
                fun.ymin = function (x) {mean (x) - sd(x, na.rm = TRUE)},
-               position = position_dodge(width = dodge_width_for_genera))+
+               position = position_dodge(width = dodge_width_for_diets))+
   stat_summary(geom = "point",
                fun.y = mean,
                size = 5,
-               position = position_dodge(width = dodge_width_for_genera))
+               position = position_dodge(width = dodge_width_for_diets))
+
+# This example shows we can add multiple summaries using group.
+ggplot(data = ChickWeight,
+       mapping = aes(y = weight,
+                     x = Diet)) +
+  stat_summary(geom = "errorbar", 
+               fun.y = mean,
+               fun.ymax = function (x) {mean (x) + sd(x, na.rm = TRUE)},
+               fun.ymin = function (x) {mean (x) - sd(x, na.rm = TRUE)})+
+  stat_summary(geom = "point",
+               fun.y = mean,
+               size = 5)+
+  stat_summary(data = ChickWeight,
+               mapping = aes(y = weight,
+                             x = as.factor(Diet),
+                             group = as.factor(Chick)),
+               geom = "point",
+               fun.y = mean)+
+  labs(x = "Diet",
+       y = "Weight")
+
 
 # This is just a brief introduction to the changes you can do
 # with stat and stat_summary.  What to do will depend on your
@@ -372,32 +389,20 @@ ggplot(surveys_complete,
 # 
 # **`ggplot2`** has a special technique called *faceting* that allows the user to split one
 # plot into multiple plots based on a factor included in the dataset. We will use it to
-# make a time series plot for each species:
+# make a time series plot for each diet in ChickWeights:
 # We'll take the previous color-based plot and add a layer called
 # facet wrap.
-ggplot(data = surveys_complete,
-       mapping = aes(x = year,
-                     color = species_id)) +
-  geom_line(stat = "count") +
-  facet_wrap(~ species_id)
+ggplot(data = ChickWeight,
+       mapping = aes(x = Time,
+                     color = Diet)) +
+  geom_line(stat = "count")+
+  facet_wrap(~ Diet)
 
-#Remove color = species_id to remove this extra piece of info.
-ggplot(data = surveys_complete,
-       mapping = aes(x = year)) +
-  geom_line(stat = "count") +
-  facet_wrap(~ species_id)
-
-
-# Now we would like to split the line in each plot by the sex of each individual
-# measured. To do that we need to make counts in the data frame grouped by `year`,
-# `species_id`, and `sex`:
-# We can now make the faceted plot by splitting further by sex using `color` (within a single plot):
-ggplot(data = surveys_complete,
-       mapping = aes(x = year,
-                     color = sex)) +
-  geom_line(stat = "count") +
-  facet_wrap(~ species_id)
-
+#Remove color = Diet to remove this extra piece of info.
+ggplot(data = ChickWeight,
+       mapping = aes(x = Time)) +
+  geom_line(stat = "count")+
+  facet_wrap(~ Diet)
 
 # The `facet_wrap` geometry extracts plots into an arbitrary number of dimensions
 # to allow them to cleanly fit on one page. On the other hand, the `facet_grid`
@@ -410,49 +415,34 @@ ggplot(data = surveys_complete,
 
   
 # One column, facet by rows
-# Let's go back to the mean weight data.frame.
+ggplot(data = ChickWeight,
+       mapping = aes(x = Time)) +
+  geom_line(stat = "count")+
+  facet_grid(. ~ Diet)
 
- # #Let's make a data.frame with means.
- # yearly_sex_weight <- surveys_complete %>%
- #   group_by(year, sex, species_id) %>%
- #   summarize(avg_weight = mean(weight))
- 
- 
-ggplot(data = yearly_sex_weight, 
-       mapping = aes(x = year, 
-                     y = avg_weight,
-                     color = species_id)) +
-    geom_line() +
-    facet_grid(sex ~ .)
 
 
 # One row, facet by column
-ggplot(data = yearly_sex_weight, 
-       mapping = aes(x = year, 
-                     y = avg_weight,
-                     color = species_id)) +
-    geom_line() +
-    facet_grid(. ~ sex)
+ggplot(data = ChickWeight,
+       mapping = aes(x = Time)) +
+  geom_line(stat = "count")+
+  facet_grid(Diet ~ .)
 
-# 
+
 # ## Customizing the appearance for accessibility and clarity
 # 
-# Usually plots with white background look more readable when printed.  We can set
-# the background to white using the function `theme_bw()`. Additionally, you can remove
-# the grid:
+# Usually plots with white background look more readable when printed.
+# We can set the background to white using the function `theme_bw()`.
+# Additionally, you can remove the grid:
+ggplot(data = diamonds, 
+       mapping = aes(x = carat,
+                     y = price,
+                     color = cut)) +
+  geom_point()+
+  theme_bw() +
+  theme(panel.grid = element_blank())
 
 
- ggplot(data = yearly_sex_counts,
-        mapping = aes(x = year,
-                      y = n, 
-                      color = sex)) +
-     geom_line() +
-     facet_wrap(~ species_id) +
-     theme_bw() +
-     theme(panel.grid = element_blank())
-
-
-# 
 # In addition to `theme_bw()`, which changes the plot background to white, **`ggplot2`**
 # comes with several other themes which can be useful to quickly change the look
 # of your visualization. The complete list of themes is available
@@ -473,16 +463,16 @@ ggplot(data = yearly_sex_weight,
 # (More options are shown on the cheatsheet.)  The asterisk is replaced with the aes()
 # you need to use, such as fill, color, or shape.
 
-n <- ggplot(data = yearly_sex_counts,
-            mapping = aes(x = year,
-                          y = n, 
-                          color = sex)) +
-     geom_line() +
-     facet_wrap(~ species_id) +
-     theme_bw() +
-     theme(panel.grid = element_blank())
+diamond_carat_price_plot <- ggplot(data = diamonds, 
+                            mapping = aes(x = carat,
+                                          y = price,
+                                          color = cut)) +
+  geom_point()+
+  theme_bw() +
+  theme(panel.grid = element_blank())
 
-n + scale_fill_brewer(palette = "Blues")
+diamond_carat_price_plot + 
+  scale_fill_brewer(palette = "Blues")
 
 # To show all palette choices:
 RColorBrewer::display.brewer.all()
@@ -506,7 +496,8 @@ RColorBrewer::display.brewer.all(type = "qual",
 # If you'd like to go directly to printing in black and white (or consider your readers
 # may print a paper out in black-and-white to read), there is a scale for that.
 
-n + scale_fill_grey(start = 0.2, end = 0.8, na.value = "red")
+diamond_carat_price_plot + 
+  scale_fill_grey(start = 0.2, end = 0.8, na.value = "red")
 
 
 # Using shapes or line types instead of colors to distinguish among values can also make figures
@@ -515,29 +506,28 @@ n + scale_fill_grey(start = 0.2, end = 0.8, na.value = "red")
 
 
 # We'll save the main plot as an object so we don't have to retype it to test each aes().
-points_plot <- ggplot(data = surveys_complete, 
-                      mapping = aes(x = weight, 
-                                    y = hindfoot_length))
 
 # Let's first test using default colors.
-points_plot +
-    geom_point(alpha = 0.1,
-               color = plot_type)
+diamond_carat_price_plot
 # And then with RColorBrewer for a colorblind accessible palette.
-points_plot +
-    geom_point(alpha = 0.1,
-               color = plot_type)+
-  scale_color_brewer(palette = "Dark2")
+RColorBrewer::display.brewer.all(type = "seq",
+                                 colorblindFriendly = TRUE)
+
+diamond_carat_price_plot +
+  scale_color_brewer(palette = "YlGnBu")
 
 #Let's check the automated shapes.
-points_plot +
+diamond_carat_price_plot+
     geom_point(alpha = 0.1,
-               shape = plot_type)
+               aes(shape = cut))
+#you will note that geom_point's aes overwrites 
+# the aes in the original object.
+
   
 # We can now distinguish among the plot types regardless of color printing or color-related visual impairments, making the plot easier for all readers.  This principle is called [**universal design**](https://en.wikipedia.org/wiki/Universal_design).
 # ?pch will show you all shapes as does the ggplot2 cheatsheet.
-# Additional information on making visualizations accessible can be found at <https://a11yproject.com/checklist#color-contrast>.
-# 
+# Additional information on making visualizations accessible
+# can be found at <https://a11yproject.com/checklist#color-contrast>.
 
 # > ### Challenge
 # > 
@@ -550,37 +540,38 @@ points_plot +
 
 
 # ## Changing the axis and axis label font sizes and angle
-# Now, let's change names of axes to something more informative than 'year'
-# and 'n' and add a title to the figure:
 
+# Now, let's change names of facet labels and axis titles.
 
-ggplot(data = yearly_sex_counts,
-       mapping = aes(x = year,
-                     y = n,
-                     color = sex)) +
-    geom_line() +
-    facet_wrap(~ species_id) +
-    labs(title = "Observed species in time",
-         x = "Year of observation",
-         y = "Number of individuals") +
-    theme_bw()
+# First, remember this plot?
+# One column, facet by rows
+ggplot(data = ChickWeight,
+       mapping = aes(x = Time)) +
+  geom_line(stat = "count")+
+  facet_grid(. ~ Diet)
 
+#The facet labels are not informative, so we use a labeller function
+# add the variable name.  You can also write your own labeller function,
+# but that is beyond the scope of this workshop.
 
-# The axes have more informative names, but their readability can be improved by
-# increasing the font size:
+ggplot(data = ChickWeight,
+       mapping = aes(x = Time)) +
+  geom_line(stat = "count")+
+  facet_grid(. ~ Diet,
+             labeller = label_both)
 
-ggplot(data = yearly_sex_counts, 
-       mapping = aes(x = year,
-                     y = n, 
-                     color = sex)) +
-    geom_line() +
-    facet_wrap(~ species_id) +
-    labs(title = "Observed species in time",
-        x = "Year of observation",
-        y = "Number of individuals") +
-    theme_bw() +
-    theme(text=element_text(size = 16))
-
+# Here we give the axes have more informative names. 
+ggplot(data = ChickWeight,
+       mapping = aes(x = Time)) +
+  geom_line(stat = "count") +
+  facet_grid(. ~ Diet,
+             labeller = label_both) +
+  theme_bw() +
+  theme(panel.grid = element_blank())+
+  labs(title = "Sample size of chicks during diet experiment",
+       x = "Time of observation",
+       y = "Number of individuals") +
+  theme_bw()
 
 # Note that it is also possible to change the fonts of your plots. If you are on
 # Windows, you may have to install
@@ -590,41 +581,186 @@ ggplot(data = yearly_sex_counts,
 # > ### Challenge
 # > 
 # > After our manipulations, you may notice that the values on the x-axis
-# > are still not properly readable. Let's change the orientation of the labels
+# > are still not properly readable in size or angle. Let's change the orientation of the labels
 # > and adjust them vertically and horizontally so they don't overlap.
 # > * Use help for element_text to find the argument to adjust the text angle.
 # > * You can use a 90-degree angle, or experiment to find the appropriate angle.
 
-
-ggplot(data = yearly_sex_counts, 
-       mapping = aes(x = year, 
-                     y = n,
-                     color = sex)) +
-    geom_line() +
-    facet_wrap(~ species_id) +
-    labs(title = "Observed species in time",
-        x = "Year of observation",
-        y = "Number of individuals") +
-    theme_bw() +
-    theme(axis.text.x = element_text(colour = "grey20",
+ggplot(data = ChickWeight,
+       mapping = aes(x = Time)) +
+  geom_line(stat = "count") +
+  facet_grid(. ~ Diet,
+             labeller = label_both)+
+  labs(title = "Sample size of chicks during diet experiment",
+       x = "Time of observation",
+       y = "Number of individuals") +
+  theme_bw() +
+  theme(text = element_text(size = 16),
+        axis.text.x = element_text(colour = "grey80",
                                      size = 12,
-                                     angle = 90,
+                                     angle = 45,
                                      hjust = 0.5, 
                                      vjust = 0.5),
-          axis.text.y = element_text(colour = "grey20",
-                                     size = 12),
-          text = element_text(size = 16))
+        axis.title.y = element_text(angle = 0,
+                                    vjust = 0.5))
+
+# ## Customize legends and add text for clarity
+
+# You can change the default value of the legend title.
+ggplot(data = diamonds,
+       mapping = aes(x = carat,
+                     y = price,
+                     color = cut)) +
+  geom_point() +
+  labs(x = "Carats",
+       y = "Price") +
+  theme_bw()+
+  theme(axis.text.x = element_text(size = 12),
+        axis.text.y = element_text(size = 12),
+        text = element_text(size = 16))+
+  guides(color=guide_legend(title="Quality of cut"))+
+  scale_color_brewer(type = "seq", palette = 18)
+
+# an equally valid way to change it.
+ggplot(data = diamonds,
+       mapping = aes(x = carat,
+                     y = price,
+                     color = cut)) +
+  geom_point() +
+  labs(x = "Carats",
+       y = "Price") +
+  theme_bw()+
+  theme(axis.text.x = element_text(size = 12),
+        axis.text.y = element_text(size = 12),
+        text = element_text(size = 16))+
+  scale_color_brewer(type = "seq",
+                     palette = 18,
+                     name = "Quality of cut")
+
+# Or in labs().
+ggplot(data = diamonds,
+       mapping = aes(x = carat,
+                     y = price,
+                     color = cut)) +
+  geom_point() +
+  labs(x = "Carats",
+       y = "Price",
+       color = "Quality of cut") +
+  theme_bw()+
+  theme(axis.text.x = element_text(size = 12),
+        axis.text.y = element_text(size = 12),
+        text = element_text(size = 16))+
+  scale_color_brewer(type = "seq",
+                     palette = 18)
 
 
-# 
-# ## Add annotations and customize legends for clarity
-# 
-# * legend.title
-# * legend.text
-# * geom_text #adding labels to points
-# * annotate(geom = "text", )
-# * add sample size to each facet
-# 
+# In this plot, we could show individuals in the legend.
+ggplot(data = ChickWeight,
+       mapping = aes(x = Time,
+                     y = weight,
+                     color = as.factor(Chick))) +
+  geom_line() +
+  labs(x = "Observation time",
+       y = "Weight") +
+  theme_bw()+
+  theme(axis.text.x = element_text(size = 12),
+        axis.text.y = element_text(size = 12),
+        text = element_text(size = 16))
+
+# However, what we want is to connect individuals so readers
+# can see trends, but the identity of individual chicks is not 
+# relevant.  We'll remove the legend.
+ggplot(data = ChickWeight,
+       mapping = aes(x = Time,
+                     y = weight,
+                     color = as.factor(Chick))) +
+  geom_line() +
+  labs(x = "Observation time",
+       y = "Weight") +
+  theme_bw()+
+  theme(axis.text.x = element_text(size = 12),
+        axis.text.y = element_text(size = 12),
+        text = element_text(size = 16))
+
+# Or, you may need the legend, but it needs better labels.
+ggplot(data = MASS::snails,
+       mapping = aes(x = Species,
+                     y = Deaths,
+                     fill = as.factor(Exposure))) +
+  geom_boxplot() +
+  labs(x = "Experimental Species",
+       y = "Count of snail deaths") +
+  theme_bw()+
+  theme(axis.text.x = element_text(size = 12),
+        axis.text.y = element_text(size = 12),
+        text = element_text(size = 16))+
+  scale_fill_grey(labels = c("One week",
+                               "Two weeks",
+                               "Three weeks",
+                               "Four weeks"),
+                    name = "Exposure")
+
+# Next we'll add text to graphs.
+# Perhaps you have a point graph where you want values as symbols or to add labels.
+ggplot(data = airquality,
+       mapping = aes(x = Wind,
+                     y = Ozone,
+                     color = Temp)) +
+  geom_text(label = as.factor(airquality$Month)) +
+  labs(x = "Wind",
+       y = "Ozone") +
+  theme_bw()+
+  theme(axis.text.x = element_text(size = 12),
+        axis.text.y = element_text(size = 12),
+        text = element_text(size = 16),
+        legend.position = "none")
+
+# You can also use geom_text() to add labels.  Here we use labels instead of colors in a legend.
+# group instead of color or fill is used to get summaries for the different categories.
+ggplot(data = boot::poisons,
+       mapping = aes(x = treat,
+                     y = time,
+                     group = poison)) +
+  geom_point(stat = "summary",
+             fun.y = mean)+
+  geom_text(stat = "summary",
+            fun.y = mean,
+            nudge_x = 0.1,
+            aes(label = boot::poisons$poison)) +
+  labs(x = "Treatment",
+       y = "Animal survival time") +
+  theme_bw()+
+  theme(axis.text.x = element_text(size = 12),
+        axis.text.y = element_text(size = 12),
+        text = element_text(size = 16),
+        legend.position = "none")
+
+# Finally, you can add individual text items to plots
+# using another layer function called annotate().
+ggplot(data = boot::poisons,
+       mapping = aes(x = treat,
+                     y = time,
+                     group = poison)) +
+  geom_point(stat = "summary",
+             fun.y = mean)+
+  geom_text(stat = "summary",
+            fun.y = mean,
+            nudge_x = 0.1,
+            aes(label = boot::poisons$poison)) +
+  geom_hline(yintercept = 0.5)+
+  annotate(geom = "text",   
+#note this uses a text geom - you could also add line segments or points.
+           x=0.5,
+           y=0.525,
+           hjust = "left",
+           label="Survival time within range")+
+  labs(x = "Treatment",
+       y = "Animal survival time") +
+  theme_bw()+
+  theme(axis.text.x = element_text(size = 12),
+        axis.text.y = element_text(size = 12),
+        text = element_text(size = 16),
+        legend.position = "none")
 
 
 # ## Saving your theme customizations
@@ -632,113 +768,133 @@ ggplot(data = yearly_sex_counts,
 # an object to be able to easily apply them to other plots you may create:
 # 
 
-grey_theme <- theme(axis.text.x = element_text(colour = "grey20",
-                                               size = 12,
-                                               angle = 90, 
-                                               hjust = 0.5,
-                                               vjust = 0.5),
-                    axis.text.y = element_text(colour = "grey20", 
-                                               size = 12),
-                    text = element_text(size = 16))
+presentation_theme <-  theme(text = element_text(size = 16),
+        axis.text.x = element_text(colour = "black",
+                                   size = 20,
+                                   hjust = 0.5, 
+                                   vjust = 0.5),
+        axis.title.y = element_text(angle = 0,
+                                    vjust = 0.5))
 
-ggplot(surveys_complete,
-       mapping = aes(x = species_id,
-                             y = hindfoot_length)) +
-    geom_boxplot() +
-    grey_theme
-#Note it doesn't require the () here because grey_theme is an object, not a function.
+ggplot(data = boot::poisons,
+       mapping = aes(x = treat,
+                     y = time,
+                     group = poison)) +
+  geom_point(stat = "summary",
+             fun.y = mean)+
+  geom_text(stat = "summary",
+            fun.y = mean,
+            nudge_x = 0.1,
+            aes(label = boot::poisons$poison)) +
+  geom_hline(yintercept = 0.5)+
+  annotate(geom = "text",   
+           #note this uses a text geom - you could also add line segments or points.
+           x=0.5,
+           y=0.525,
+           hjust = "left",
+           label="Survival time within range")+
+  labs(x = "Treatment",
+       y = "Animal survival time") +
+  theme_bw()+
+  presentation_theme
+
+#Note it doesn't require the () here because presentation_theme
+# is an object, not a function.
 
 # > ### Challenge
 # > 
 # > Save a theme (the changes you've made so far or add additional ones)
 # > Then apply them to a different graph.
 
-
-
 # ## Arranging and exporting plots
-# 
-# Faceting is a great tool for splitting one plot into multiple plots, but sometimes you may want to produce a single figure that contains multiple plots using different variables or even different data frames. The **`gridExtra`** package allows us to combine separate ggplots into a single figure using `grid.arrange()`:
+# Faceting is a great tool for splitting one plot into multiple plots, 
+# but sometimes you may want to produce a single figure that contains 
+# multiple plots using different variables or even different data frames.
+# The **`gridExtra`** package allows us to combine separate ggplots into a single
+# figure using `grid.arrange()`:
 
 install.packages("gridExtra")
 library(gridExtra)
 
-spp_weight_boxplot <- ggplot(data = surveys_complete, 
-                             mapping = aes(x = species_id, 
-                                           y = weight)) +
-  geom_boxplot() +
-  xlab("Species") +
-  ylab("Weight (g)") +
-  scale_y_log10()
+individual_weight_boxplot <- ggplot(data = ChickWeight,
+                             mapping = aes(x = Time,
+                                           y = weight,
+                                           color = as.factor(Chick))) +
+  geom_line() +
+  labs(x = "Observation time",
+       y = "Individual Weight") +
+  theme_bw()+
+  theme(axis.text.x = element_text(size = 12),
+        axis.text.y = element_text(size = 12),
+        text = element_text(size = 16),
+        legend.position = "none")
 
-spp_count_plot <- ggplot(data = yearly_counts, 
-                         mapping = aes(x = year,
-                                       y = n, 
-                                       color = species_id)) +
-  geom_line() + 
-  xlab("Year") + 
-  ylab("Abundance")
+dodge_width_for_diets <- 0.9
+diet_means_sd_plot <- ggplot(ChickWeight,
+       aes(x = Time,
+           weight,
+           color = Diet)) +
+  labs(y = "Mean and sd weights")+
+  stat_summary(geom = "errorbar", 
+               fun.y = mean,
+               fun.ymax = function (x) {mean (x) + sd(x, na.rm = TRUE)},
+               fun.ymin = function (x) {mean (x) - sd(x, na.rm = TRUE)},
+               position = position_dodge(width = dodge_width_for_diets))+
+  stat_summary(geom = "point",
+               fun.y = mean,
+               size = 5,
+               position = position_dodge(width = dodge_width_for_diets))+
+  theme_bw()+
+  presentation_theme
 
-grid.arrange(spp_weight_boxplot,
-             spp_count_plot,
+
+grid.arrange(diet_means_sd_plot,
+             individual_weight_boxplot,
              ncol = 2, 
-             widths = c(4, 6))
+             widths = c(6, 4))
 
-
-
-# In addition to the `ncol` and `nrow` arguments, used to make simple arrangements, there are tools for [constructing more complex layouts](https://cran.r-project.org/web/packages/gridExtra/vignettes/arrangeGrob.html). 
+# In addition to the `ncol` and `nrow` arguments, used to make simple arrangements,
+# there are tools for constructing more complex layouts at
+# https://cran.r-project.org/web/packages/gridExtra/vignettes/arrangeGrob.html .
 # 
-# After creating your plot, you can save it to a file in your favorite format. The Export tab in the **Plot** pane in RStudio will save your plots at low resolution, which will not be accepted by many journals and will not scale well for posters. 
+# After creating your plot, you can save it to a file in your favorite format.
+# The Export tab in the **Plot** pane in RStudio will save your plots at low resolution,
+# which will not be accepted by many journals and will not scale well for posters. 
 # 
-# Instead, use the `ggsave()` function, which allows you easily change the dimension and resolution of your plot by adjusting the appropriate arguments (`width`, `height` and `dpi`). 
+# Instead, use the `ggsave()` function, which allows you easily change the dimension
+# and resolution of your plot by adjusting the appropriate arguments (`width`, `height`,
+# and `dpi`). 
 # 
-# Make sure you have the `fig_output/` folder in your working directory.
+# Make sure you create the `fig_output/`
+# folder in your working directory first.
 
-
-my_plot <- ggplot(data = yearly_sex_counts, 
-                  mapping = aes(x = year,
-                                y = n,
-                                color = sex)) +
-    geom_line() +
-    facet_wrap(~ species_id) +
-    labs(title = "Observed species in time",
-        x = "Year of observation",
-        y = "Number of individuals") +
-    theme_bw() +
-    theme(axis.text.x = element_text(colour = "grey20",
-                                     size = 12,
-                                     angle = 90,
-                                     hjust = 0.5,
-                                     vjust = 0.5),
-          axis.text.y = element_text(colour = "grey20",
-                                     size = 12),
-          text=element_text(size = 16))
-ggsave("fig_output/yearly_sex_counts.png",
-       my_plot,
+ggsave("fig_output/diet_means_sd_plot.png",
+       diet_means_sd_plot,
        width = 15,
        height = 10)
 
 # This also works for grid.arrange() plots.
 # Note that specifying the extension changes the file type saved.
 # check ?ggsave to see the other extensions you can use listed under the device argument.
-combo_plot <- grid.arrange(spp_weight_boxplot,
-                           spp_count_plot, 
-                           ncol = 2, 
-                           widths = c(4, 6))
-
+combo_plot <- grid.arrange(diet_means_sd_plot,
+                        individual_weight_boxplot,
+                        ncol = 2, 
+                        widths = c(6, 4))
 # Note that you don't need dpi for vector outputs like pdf, svg, or eps.
-ggsave("fig_output/combo_plot_abun_weight.pdf",
+ggsave("fig_output/combo_plot_chick_weight.pdf",
        combo_plot, 
        width = 10)
 
 
-# Note: The parameters `width` and `height` also determine the font size in the saved plot.
+# Note: The parameters `width` and `height` also determine the 
+# font size in the saved plot.
 
 
 
 ### Final plotting challenge:
 ##  With all of this information in hand, please take another five
 ##  minutes to either improve one of the plots generated in this
-##  exercise or create a beautiful graph of your own. Use the RStudio
-##  ggplot2 cheat sheet for inspiration:
+##  exercise or create a beautiful graph of your own using sample data
+##  or your own data. Use the RStudio ggplot2 cheat sheet for inspiration:
 ##  https://www.rstudio.com/wp-content/uploads/2015/08/ggplot2-cheatsheet.pdf
 
