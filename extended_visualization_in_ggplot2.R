@@ -530,12 +530,12 @@ diamond_carat_price_plot +
   scale_color_brewer(palette = "YlGnBu")
 
 #Let's check the automated shapes.
-diamond_carat_price_plot+
-    geom_point(alpha = 0.1,
-               aes(shape = cut))
-#you will note that geom_point's aes overwrites 
-# the aes in the original object.
-
+ggplot(data = diamonds, 
+       mapping = aes(x = carat,
+                     y = price,
+                     color = cut,
+                     shape = as.factor(cut))) +
+    geom_point(alpha = 0.1)
   
 # We can now distinguish among the plot types regardless of color printing or color-related visual impairments, making the plot easier for all readers.  This principle is called [**universal design**](https://en.wikipedia.org/wiki/Universal_design).
 # ?pch will show you all shapes as does the ggplot2 cheatsheet.
