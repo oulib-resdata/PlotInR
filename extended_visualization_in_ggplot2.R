@@ -29,6 +29,7 @@
 
 library(tidyverse)
 library(RColorBrewer)
+library(datasets)
 
 # We will be using datasets included in base R and various packages to practice plotting today.
 
@@ -57,6 +58,10 @@ library(RColorBrewer)
 # - use the `ggplot()` function and bind the plot to a specific data frame using the
 #       `data` argument
 # 
+
+# Please note today that we will be using built-in datasets.
+# They will not appear in the environment
+# and can only be loaded with certain datasets.
 
 ggplot(data = diamonds)
 
@@ -154,6 +159,8 @@ diamonds_plot+
 # **`ggplot2`** will provide a different color corresponding to 
 # different values in the vector. Here is an example where we 
 # color with **`cut`**, a categorical variable:
+# Reminder: a vector is a type of object in R.
+
 diamonds_plot +
     geom_point(alpha = 0.1, 
                aes(color = cut))
@@ -163,7 +170,7 @@ diamonds_plot +
 # the mapping provided in the `ggplot()` function. 
 # This will be seen by any geom layers and the mapping 
 # will be determined by the x- and y-axis set up in `aes()`.
-# Here we'll use a different dataset and change another aes
+# Here we'll use a **different dataset** and change another aes
 # called shape.
 ggplot(data = airquality, 
        mapping = aes(x = Ozone,
@@ -172,7 +179,8 @@ ggplot(data = airquality,
     geom_point()
 
 
-# Notice that we can change the geom layer and colors will be still determined by **`species_id`**
+# Notice that we can change the shape to the geom layer
+# will be still determined by **`Month`**
 ggplot(data = airquality, 
        mapping = aes(x = Ozone,
                      y = Wind)) +
@@ -192,6 +200,7 @@ ggplot(data = diamonds,
 
 # ## Boxplot
 # A more appropriate way to visualize data in categories is boxplots.
+# Boxplots show medians, quartiles, and outliers.
 # Let's use boxplots to visualize the distribution of price within 
 # each cut of diamond:
 
@@ -255,6 +264,8 @@ ggplot(data = diamonds,
 
 ##  4. Add color to the data points on your boxplot according to the
 ##  color of the diamond (`color`).
+## Note that color is both an argument in geom
+## and is a COLUMN in diamonds.
 ggplot(data = diamonds, 
        mapping = aes(x = cut,
                      y = price)) +
@@ -273,17 +284,17 @@ count_timeseries <- ChickWeight %>%
                  count(Time, Diet)
 
 # 
-# Time series data can be visualized as a line plot with years on the x axis and counts
-# on the y axis:
+# Time series data can be visualized as a line plot with days
+# on the x axis and counts on the y axis:
 ggplot(data = count_timeseries, 
        mapping = aes(x = Time,
                      y = n)) +
      geom_line()
 
 
-# Unfortunately, this does not work because we plotted data for all the species
-# together. We need to tell ggplot to draw a line for each species by modifying
-# the aesthetic function to include `group = species_id`:
+# Unfortunately, this does not work because we plotted data for all the diets
+# together. We need to tell ggplot to draw a line for each diets by modifying
+# the aesthetic function to include `group = Diet`:
 
 ggplot(data = count_timeseries, 
        mapping = aes(x = Time, 
@@ -292,7 +303,8 @@ ggplot(data = count_timeseries,
     geom_line()
 
 
-# We will be able to distinguish species in the plot if we add colors (using `color` also automatically groups the data):
+# We will be able to distinguish diets in the plot
+# if we add colors (using `color` also automatically groups the data):
 ggplot(data = count_timeseries,
        mapping = aes(x = Time,
                      y = n,
@@ -308,7 +320,8 @@ ggplot(data = ChickWeight,
                      color = Diet)) +
   geom_line(stat = "count")
 
-#geom and stat work very similarly as you can see by this identical plot as previously.
+#geom and stat work very similarly as you can see by this
+# identical plot as previously.
 
 #Other summary statistics are also available.
 ggplot(ChickWeight,
@@ -410,7 +423,7 @@ ggplot(data = ChickWeight,
 # arranged via formula notation (`rows ~ columns`; a `.` can be used as
 # a placeholder that indicates only one row or column).
 # 
-# Let's modify the previous plot to compare how the weights of males and females
+# Let's modify the previous plot to compare how the weights on different diets
 # have changed through time:
 
   
@@ -472,7 +485,7 @@ diamond_carat_price_plot <- ggplot(data = diamonds,
   theme(panel.grid = element_blank())
 
 diamond_carat_price_plot + 
-  scale_fill_brewer(palette = "Blues")
+  scale_color_brewer(palette = "Blues")
 
 # To show all palette choices:
 RColorBrewer::display.brewer.all()
@@ -497,7 +510,7 @@ RColorBrewer::display.brewer.all(type = "qual",
 # may print a paper out in black-and-white to read), there is a scale for that.
 
 diamond_carat_price_plot + 
-  scale_fill_grey(start = 0.2, end = 0.8, na.value = "red")
+  scale_color_grey(start = 0.2, end = 0.8, na.value = "red")
 
 
 # Using shapes or line types instead of colors to distinguish among values can also make figures
@@ -578,13 +591,14 @@ ggplot(data = ChickWeight,
 # the [**`extrafont`** package](https://github.com/wch/extrafont), and follow the
 # instructions included in the README for this package.
 
-# > ### Challenge
-# > 
-# > After our manipulations, you may notice that the values on the x-axis
-# > are still not properly readable in size or angle. Let's change the orientation of the labels
-# > and adjust them vertically and horizontally so they don't overlap.
-# > * Use help for element_text to find the argument to adjust the text angle.
-# > * You can use a 90-degree angle, or experiment to find the appropriate angle.
+# ### Challenge
+# 
+# Let's change the orientation of the labels
+# and adjust them vertically and horizontally 
+# so they don't overlap if they are longer. 
+# (Ours are short but longer names would be a problem.)
+# * Use help for element_text to find the argument to adjust the text angle.
+# * You can use a 90-degree angle, or experiment to find the appropriate angle.
 
 ggplot(data = ChickWeight,
        mapping = aes(x = Time)) +
@@ -680,7 +694,8 @@ ggplot(data = ChickWeight,
   theme_bw()+
   theme(axis.text.x = element_text(size = 12),
         axis.text.y = element_text(size = 12),
-        text = element_text(size = 16))
+        text = element_text(size = 16),
+        legend.position = "none")
 
 # Or, you may need the legend, but it needs better labels.
 ggplot(data = MASS::snails,
@@ -712,11 +727,14 @@ ggplot(data = airquality,
   theme_bw()+
   theme(axis.text.x = element_text(size = 12),
         axis.text.y = element_text(size = 12),
-        text = element_text(size = 16),
-        legend.position = "none")
+        text = element_text(size = 16))
 
 # You can also use geom_text() to add labels.  Here we use labels instead of colors in a legend.
 # group instead of color or fill is used to get summaries for the different categories.
+# This example dataset we will call directly without loading
+# its library (`boot`).  To do this we put the library name
+# with two colons, followed by the dataset name.
+
 ggplot(data = boot::poisons,
        mapping = aes(x = treat,
                      y = time,
@@ -737,6 +755,7 @@ ggplot(data = boot::poisons,
 
 # Finally, you can add individual text items to plots
 # using another layer function called annotate().
+# Again we have to call the dataset from its library directly.
 ggplot(data = boot::poisons,
        mapping = aes(x = treat,
                      y = time,
