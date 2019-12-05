@@ -61,7 +61,7 @@ library(datasets)
 
 # Please note today that we will be using built-in datasets.
 # They will not appear in the environment
-# and can only be loaded with certain datasets.
+# and can only be loaded with certain packages.
 
 ggplot(data = diamonds)
 
@@ -74,7 +74,7 @@ ggplot(data = diamonds,
                      y = price))
 
 # 
-# - add 'geoms' – graphical representations of the data in the plot (points,
+# - add 'geoms' - graphical representations of the data in the plot (points,
 #   lines, bars). **`ggplot2`** offers many different geoms; we will use some 
 #   common ones today, including:
 #   
@@ -380,7 +380,7 @@ ggplot(data = ChickWeight,
                size = 5)+
   stat_summary(data = ChickWeight,
                mapping = aes(y = weight,
-                             x = as.factor(Diet),
+                             x = Diet,
                              group = as.factor(Chick)),
                geom = "point",
                fun.y = mean)+
@@ -391,12 +391,6 @@ ggplot(data = ChickWeight,
 # This is just a brief introduction to the changes you can do
 # with stat and stat_summary.  What to do will depend on your
 # plotting needs.
-
-# Challenge
-
-# Take five minutes to experience changing the ymax and ymin functions,
-# along with fun.y, to see how it changes your plot.
-# Be ready to chime in with your experience at the end of this time.
 
 # ## Faceting
 # 
@@ -534,7 +528,7 @@ ggplot(data = diamonds,
        mapping = aes(x = carat,
                      y = price,
                      color = cut,
-                     shape = as.factor(cut),
+                     shape = cut,
                      size = 5)) +
     geom_point()
   
@@ -542,16 +536,6 @@ ggplot(data = diamonds,
 # ?pch will show you all shapes as does the ggplot2 cheatsheet.
 # Additional information on making visualizations accessible
 # can be found at <https://a11yproject.com/checklist#color-contrast>.
-
-# > ### Challenge
-# > 
-# > With all of this information in hand, please take another five minutes to
-# > alter more aesthetics of one of the graphs. Use the RStudio [**`ggplot2`** cheat sheet](https://github.com/rstudio/cheatsheets/raw/master/data-visualization-2.1.pdf)
-# > for inspiration. Here are some ideas:
-# >
-# > * Change the color of a continuous (numeric) variable.
-# > * Manually choose point shapes.
-
 
 # ## Changing the axis and axis label font sizes and angle
 
@@ -821,11 +805,6 @@ ggplot(data = boot::poisons,
 #Note it doesn't require the () here because presentation_theme
 # is an object, not a function.
 
-# > ### Challenge
-# > 
-# > Save a theme (the changes you've made so far or add additional ones)
-# > Then apply them to a different graph.
-
 # ## Arranging and exporting plots
 # Faceting is a great tool for splitting one plot into multiple plots, 
 # but sometimes you may want to produce a single figure that contains 
@@ -909,12 +888,7 @@ ggsave("fig_output/combo_plot_chick_weight.pdf",
 # Note: The parameters `width` and `height` also determine the 
 # font size in the saved plot.
 
-
-
-### Final plotting challenge:
-##  With all of this information in hand, please take another five
-##  minutes to either improve one of the plots generated in this
-##  exercise or create a beautiful graph of your own using sample data
-##  or your own data. Use the RStudio ggplot2 cheat sheet for inspiration:
-##  https://www.rstudio.com/wp-content/uploads/2015/08/ggplot2-cheatsheet.pdf
-
+# This wraps up our tour of editing plots in ggplot2.  
+# There are so many more things you can do as needed for
+# presentations or manuscripts.  Please feel free to reach out 
+# to me or a DAVIS information specialist for additional help with R.
