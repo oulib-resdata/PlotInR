@@ -463,6 +463,9 @@ ggplot(data = diamonds,
 # of packages that extend the capabilities of **`ggplot2`**, including additional
 # themes.
 
+# The [hrbrthemes](https://cran.r-project.org/web/packages/hrbrthemes/index.html) package
+# provides many more themes as well.
+
 # ## Changing color and shape aesthetics using scale_*_
 # 
 # Another layer to add to our plot is aesthetic scaling using variations on 
