@@ -301,7 +301,8 @@ ggplot(data = count_timeseries,
                      y = n,
                      group = Diet)) +
     geom_line()
-
+# We will expand this plot into an easier-to-read 
+# format later when we talk about faceting.
 
 # We will be able to distinguish diets in the plot
 # if we add colors (using `color` also automatically groups the data):
@@ -329,7 +330,7 @@ ggplot(ChickWeight,
            y = weight,
            color = Diet)) +
   geom_point(stat='summary', 
-             fun.y=mean)
+             fun.y=mean) #new version is fun = mean
 
 
 # It's related to the stat_summary() layer that we'll try next. 
@@ -341,10 +342,15 @@ ggplot(ChickWeight,
            color = Diet)) +
   stat_summary(geom = "errorbar", 
                fun.y = mean,
+               #use fun = mean on newest version of R
                fun.ymax = function (x) {mean (x) + sd(x, na.rm = TRUE)},
-               fun.ymin = function (x) {mean (x) - sd(x, na.rm = TRUE)})+
+               #use fun.max on newest version of R
+               fun.ymin = function (x) {mean (x) - sd(x, na.rm = TRUE)}
+               #use fun.min on newest version of R
+               )+
   stat_summary(geom = "point",
                fun.y = mean,
+               #use fun = mean on newest version of R
                size = 5)
 
 
@@ -359,11 +365,15 @@ ggplot(ChickWeight,
            color = Diet)) +
   stat_summary(geom = "errorbar", 
                fun.y = mean,
+               #use fun = mean on newest version of R
                fun.ymax = function (x) {mean (x) + sd(x, na.rm = TRUE)},
+               #use fun.max on newest version of R
                fun.ymin = function (x) {mean (x) - sd(x, na.rm = TRUE)},
+               #use fun.min on newest version of R
                position = position_dodge(width = dodge_width_for_diets))+
   stat_summary(geom = "point",
                fun.y = mean,
+               #use fun = mean on newest version of R
                size = 5,
                position = position_dodge(width = dodge_width_for_diets))
 
@@ -373,17 +383,24 @@ ggplot(data = ChickWeight,
                      x = Diet)) +
   stat_summary(geom = "errorbar", 
                fun.y = mean,
+               #use fun = mean on newest version of R
                fun.ymax = function (x) {mean (x) + sd(x, na.rm = TRUE)},
-               fun.ymin = function (x) {mean (x) - sd(x, na.rm = TRUE)})+
+               #use fun.max on newest version of R
+               fun.ymin = function (x) {mean (x) - sd(x, na.rm = TRUE)}
+               #use fun.min on newest version of R
+               )+
   stat_summary(geom = "point",
                fun.y = mean,
+               #use fun = mean on newest version of R
                size = 5)+
   stat_summary(data = ChickWeight,
                mapping = aes(y = weight,
                              x = Diet,
                              group = as.factor(Chick)),
                geom = "point",
-               fun.y = mean)+
+               fun.y = mean
+               #use fun = mean on newest version of R
+               )+
   labs(x = "Diet",
        y = "Weight")
 
@@ -728,9 +745,12 @@ ggplot(data = boot::poisons,
                      y = time,
                      group = poison)) +
   geom_point(stat = "summary",
-             fun.y = mean)+
+             fun.y = mean
+             #use fun = mean on newest version of R
+             )+
   geom_text(stat = "summary",
             fun.y = mean,
+            #use fun = mean on newest version of R
             nudge_x = 0.1,
             aes(label = boot::poisons$poison)) +
   labs(x = "Treatment",
@@ -750,8 +770,10 @@ ggplot(data = boot::poisons,
                      group = poison)) +
   geom_point(stat = "summary",
              fun.y = mean)+
+            #use fun = mean on newest version of R
   geom_text(stat = "summary",
             fun.y = mean,
+            #use fun = mean on newest version of R
             nudge_x = 0.1,
             aes(label = boot::poisons$poison)) +
   geom_hline(yintercept = 0.5)+
@@ -789,8 +811,10 @@ ggplot(data = boot::poisons,
                      group = poison)) +
   geom_point(stat = "summary",
              fun.y = mean)+
+            #use fun = mean on newest version of R
   geom_text(stat = "summary",
             fun.y = mean,
+            #use fun = mean on newest version of R
             nudge_x = 0.1,
             aes(label = boot::poisons$poison)) +
   geom_hline(yintercept = 0.5)+
@@ -838,9 +862,11 @@ diet_means_sd_plot <- ggplot(ChickWeight,
            color = Diet)) +
   labs(y = "Mean and sd weights")+
   stat_summary(geom = "errorbar", 
-               fun.y = mean,
+               fun.y = mean, #use fun = mean on newest version of R
                fun.ymax = function (x) {mean (x) + sd(x, na.rm = TRUE)},
+               #use fun.max on newest version of R
                fun.ymin = function (x) {mean (x) - sd(x, na.rm = TRUE)},
+               #use fun.min on newest version of R
                position = position_dodge(width = dodge_width_for_diets))+
   stat_summary(geom = "point",
                fun.y = mean,
