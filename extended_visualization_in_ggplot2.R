@@ -91,25 +91,11 @@ ggplot(data = diamonds,
                      y = price)) +
   geom_point()
 
+# Thus, building plots with **`ggplot2`** is typically an iterative process.
+# We start by
+# defining the dataset we'll use, lay out the axes, and choose a geom.
 
-# The `+` in the **`ggplot2`** package is particularly useful because it allows you
-# to modify existing `ggplot` objects. This means you can easily set up plot
-# templates and conveniently explore different types of plots, so the above
-# plot can also be generated with code like this:
-
-
-# Assign plot to a variable
-diamonds_plot <- ggplot(data = diamonds,
-                       mapping = aes(x = carat,
-                                     y = price))
-# note it doesn't print since it's assigned to an object.
-
-# Draw the plot
-diamonds_plot + 
-    geom_point()
-
-# 
-# **Notes**
+# **Notes, usually no time to cover, but explain if asked**
 # 
 # - Anything you put in the `ggplot()` function can be seen by any geom layers
 #   that you add (i.e., these are universal plot settings). This includes the x- and
@@ -122,21 +108,22 @@ diamonds_plot +
 # error message.
 # 
 # # This is the correct syntax for adding layers
-diamonds_plot +
+
+ggplot(data = diamonds,
+       mapping = aes(x = carat,
+                     y = price)) +
   geom_point()
 # 
 # # This will not add the new layer and will return an error message
-diamonds_plot
-+ geom_point()
+ggplot(data = diamonds,
+       mapping = aes(x = carat,
+                     y = price))+
+  geom_point()
 
 
-
-# ## Building your plots iteratively
-# 
-# Building plots with **`ggplot2`** is typically an iterative process. We start by
-# defining the dataset we'll use, lay out the axes, and choose a geom:
-
-diamonds_plot +
+ggplot(data = diamonds,
+       mapping = aes(x = carat,
+                     y = price)) +
     geom_point()
 
 # 
@@ -144,12 +131,16 @@ diamonds_plot +
 # instance, we can add transparency (`alpha`) to avoid overplotting:
 
 
-diamonds_plot +
+ggplot(data = diamonds,
+       mapping = aes(x = carat,
+                     y = price)) +
     geom_point(alpha = 0.1)
 
 
 # We can also add colors for all the points:
-diamonds_plot+
+ggplot(data = diamonds,
+       mapping = aes(x = carat,
+                     y = price)) +
     geom_point(alpha = 0.1,
                color = "blue")
 
@@ -161,30 +152,36 @@ diamonds_plot+
 # color with **`cut`**, a categorical variable:
 # Reminder: a vector is a type of object in R.
 
-diamonds_plot +
-    geom_point(alpha = 0.1, 
-               aes(color = cut))
+ggplot(data = diamonds,
+       mapping = aes(x = carat,
+                     y = price,
+                     color = cut)) +
+    geom_point(alpha = 0.1)
 
 
 # We can also specify the aesthetics directly inside 
 # the mapping provided in the `ggplot()` function. 
 # This will be seen by any geom layers and the mapping 
 # will be determined by the x- and y-axis set up in `aes()`.
-# Here we'll use a **different dataset** and change another aes
+# Here we'll use change another aes
 # called shape.
-ggplot(data = airquality, 
-       mapping = aes(x = Ozone,
-                     y = Wind,
-                     shape = as.factor(Month))) +
-    geom_point()
+ggplot(data = diamonds,
+       mapping = aes(x = carat,
+                     y = price,
+                     color = cut,
+                     shape = cut)) +
+  geom_point(alpha = 0.1)
 
 
-# Notice that we can change the shape to the geom layer
-# will be still determined by **`Month`**
-ggplot(data = airquality, 
-       mapping = aes(x = Ozone,
-                     y = Wind)) +
-  geom_point(aes(shape = as.factor(Month)))
+# Notice that we can change the aes to be located in the geom layer
+# and it will be still work.  This can be used to layer several plots,
+# which we'll do later.
+ggplot(data = diamonds) +
+  geom_point(alpha = 0.1,
+             aes(x = carat,
+                 y = price,
+                 color = cut,
+                 shape = cut))
 
 # > ### Challenge
 # >
@@ -230,49 +227,6 @@ ggplot(data = diamonds,
               color = "tomato") +
   geom_boxplot(alpha = 0)
 
-## Challenge with boxplots:
-##  Start with the boxplot we created:
-ggplot(data = diamonds, 
-       mapping = aes(x = cut,
-                     y = price)) +
-  geom_boxplot(alpha = 0) +
-  geom_jitter(alpha = 0.3, 
-              color = "tomato")
-
-##  1. Replace the box plot with a violin plot; see `geom_violin()`.
-ggplot(data = diamonds, 
-       mapping = aes(x = cut,
-                     y = price)) +
-  geom_violin(alpha = 0)
-
-##  2. Represent weight on the log10 scale; see `scale_y_log10()`.
-ggplot(data = diamonds, 
-       mapping = aes(x = cut,
-                     y = price)) +
-  geom_violin()+
-  scale_y_log10()
-# You will note that it doesn't change the label on the y axis to reflect the log transform.
-# Later we will change y-axis labels!
-
-##  3. Create boxplot for `price` and `cut` overlaid on a jitter layer.
-ggplot(data = diamonds, 
-       mapping = aes(x = cut,
-                     y = price)) +
-  geom_jitter(color = "black",
-              alpha = 0.5)+
-  geom_boxplot(alpha = 0.5)
-
-##  4. Add color to the data points on your boxplot according to the
-##  color of the diamond (`color`).
-## Note that color is both an argument in geom
-## and is a COLUMN in diamonds.
-ggplot(data = diamonds, 
-       mapping = aes(x = cut,
-                     y = price)) +
-  geom_jitter(color = "black",
-              alpha = 0.5)+
-  geom_boxplot(alpha = 0.9,
-               aes(fill = color))
 
 
 # ## Plotting time series data
