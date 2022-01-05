@@ -8,18 +8,20 @@
 # > ### Learning Objectives
 # 
 # > * Overall: Build complex and customized plots from data in a data frame.
-# > * Produce appropriate plot types for your data
-#       * Create multiple types of plots: Produce scatter plots, boxplots,
-#         violin plots, and time series plots using ggplot.
-# >     * Add measures of variation and summaries to plots.
-# >     * Describe what faceting is and apply faceting in ggplot.
-# > * Produce clear and accessible aesthetics and labels for your plot
-#       * Modify the aesthetics of an existing ggplot plot
-#         (including axis labels and color), focusing on
-#         accessibility (colorblind palettes, using shapes and 
-#         line types, changing font size)
-#         and clarity (removing grids)
-#       * Add and modify annotations and legends for clarity.
+# > * Understand the ggplot syntax of layers and geoms
+# > * Find appropriate plot types for your data
+#       * Create scatter plots and boxplots
+# > * Produce effective, accessible plots for your data
+#       * Modify the aesthetics, labels, and theme of an existing ggplot plot,
+#         focusing on accessibility (colorblind palettes, using shapes and 
+#         line types together, changing font size, removing extraneous lines)
+# >     * Add measures of variation and summaries to plots
+# >     * Apply faceting or geom_line() to plots in datasets with groupings
+# > * Produce clear, representative aesthetics and labels for your plot
+#       * Modify the aesthetics of an existing ggplot plot for 
+#         clarity (checking shapes and sizes for proportionality)
+#       * Add and modify labels, annotations, and legends to match 
+#         all of your document/presentation/annotations
 
 # We start by loading the required packages. 
 # **`ggplot2`** is included in the **`tidyverse`** package.
@@ -33,7 +35,9 @@ library(datasets)
 
 # We will be using datasets included in base R and various packages to practice plotting today.
 
-# ## Plotting with **`ggplot2`**
+#####################
+# Plotting with **`ggplot2`**: understanding the syntax
+#####################
 # 
 # **`ggplot2`** is a plotting package that makes it simple to create complex plots
 # from data in a data frame. It provides a more programmatic interface for
@@ -183,6 +187,13 @@ ggplot(data = diamonds) +
                  color = cut,
                  shape = cut))
 
+# You can read more about the "grammar of graphics" approach taken by 
+# ggplot2 here: https://ggplot2-book.org/mastery.html .
+
+#####################
+# Finding appropriate plot types
+#####################
+
 # > ### Challenge
 # >
 # > Use what you just learned to create a scatter plot in the diamonds dataset
@@ -194,10 +205,12 @@ ggplot(data = diamonds,
                      y = price)) +
     geom_point()
 
-
-# ## Boxplot
-# A more appropriate way to visualize data in categories is boxplots.
-# Boxplots show medians, quartiles, and outliers.
+# geom_point is what Wickham et al call an "individual geom" https://ggplot2-book.org/individual-geoms.html
+# It shows every data point. We'll continue using geom_point and also add in
+# geom_line later in our workshop today.
+# A more appropriate way to visualize data in categories is collective geoms.
+# https://ggplot2-book.org/collective-geoms.html
+# We'll use boxplot_geom today.  Boxplots show medians, quartiles, and outliers.
 # Let's use boxplots to visualize the distribution of price within 
 # each cut of diamond:
 
@@ -206,7 +219,121 @@ ggplot(data = diamonds,
                      y = price)) +
   geom_boxplot()
 
-# By adding points to boxplot, we can have a better idea of the number of
+
+#####################
+# Producing effective, accessible plots
+#####################
+#### Accessibility
+# People have to be able to read your plot for it to be effective
+
+# ## Customizing the appearance for accessibility and clarity
+# 
+# Usually plots with white background look more readable when printed.
+# We can set the background to white using the function `theme_bw()`.
+# Additionally, you can remove the grid:
+ggplot(data = diamonds, 
+       mapping = aes(x = carat,
+                     y = price,
+                     color = cut)) +
+  geom_point()+
+  theme_bw() +
+  theme(panel.grid = element_blank())
+
+
+# In addition to `theme_bw()`, which changes the plot background to white, **`ggplot2`**
+# comes with several other themes which can be useful to quickly change the look
+# of your visualization. The complete list of themes is available
+# at <https://ggplot2.tidyverse.org/reference/ggtheme.html>. `theme_minimal()` and
+# `theme_light()` are popular, and `theme_void()` can be useful as a starting
+# point to create a new hand-crafted theme.
+# 
+# The [ggthemes](https://jrnold.github.io/ggthemes/reference/index.html) package
+# provides a wide variety of options (including an Excel 2003 theme).
+# The [**`ggplot2`** extensions website](https://www.ggplot2-exts.org) provides a list
+# of packages that extend the capabilities of **`ggplot2`**, including additional
+# themes.
+
+# The [hrbrthemes](https://cran.r-project.org/web/packages/hrbrthemes/index.html) package
+# provides many more themes as well.
+
+# ## Changing color and shape aesthetics using scale_*_
+# 
+# Another layer to add to our plot is aesthetic scaling using variations on 
+# scale_*_continuous(), scale_*_discrete(), and scale_*_manual(values=c()).
+# (More options are shown on the cheatsheet.)  The asterisk is replaced with the aes()
+# you need to use, such as fill, color, or shape.
+
+diamond_carat_price_plot <- ggplot(data = diamonds, 
+                                   mapping = aes(x = carat,
+                                                 y = price,
+                                                 color = cut)) +
+  geom_point()+
+  theme_bw() +
+  theme(panel.grid = element_blank())
+
+diamond_carat_price_plot + 
+  scale_color_brewer(palette = "Blues")
+
+# To show all palette choices:
+RColorBrewer::display.brewer.all()
+
+# This doesn't help guide us for colorblind accessibility,
+# but there is argument to specify this.
+
+RColorBrewer::display.brewer.all(colorblindFriendly = TRUE)
+
+# You can also specify the type of color set you want.
+# "div" (diverging color gradients with pale area in middle of range),
+# "qual" (qualitative that do not imply magnitude changes),
+# "seq" (sequences from low to high values),
+# or "all" (which is default)
+
+RColorBrewer::display.brewer.all(type = "qual",
+                                 colorblindFriendly = FALSE)
+RColorBrewer::display.brewer.all(type = "qual",
+                                 colorblindFriendly = TRUE)
+
+# If you'd like to go directly to printing in black and white (or consider your readers
+# may print a paper out in black-and-white to read), there is a scale for that.
+
+diamond_carat_price_plot + 
+  scale_color_grey(start = 0.2, end = 0.8, na.value = "red")
+
+
+# Using shapes or line types instead of colors to distinguish among values can also make figures
+# more accessible or easier to read in black-and-white.  Let's go back to our weight and length 
+# plot.  Let's try to distinguish among plot types.
+
+
+# We'll save the main plot as an object so we don't have to retype it to test each aes().
+
+# Let's first test using default colors.
+diamond_carat_price_plot
+# And then with RColorBrewer for a colorblind accessible palette.
+RColorBrewer::display.brewer.all(type = "seq",
+                                 colorblindFriendly = TRUE)
+
+diamond_carat_price_plot +
+  scale_color_brewer(palette = "YlGnBu")
+
+#Let's check the automated shapes.
+ggplot(data = diamonds, 
+       mapping = aes(x = carat,
+                     y = price,
+                     color = cut,
+                     shape = cut,
+                     size = 5)) +
+  geom_point()
+
+# We can now distinguish among the plot types regardless of color printing or color-related visual impairments, making the plot easier for all readers.  This principle is called [**universal design**](https://en.wikipedia.org/wiki/Universal_design).
+# ?pch will show you all shapes as does the ggplot2 cheatsheet.
+# Additional information on making visualizations accessible
+# can be found at <https://a11yproject.com/checklist#color-contrast>.
+
+
+#### Adding summary statistics to increase effectiveness.
+# By adding a boxplot to a geom_point plot,
+# we can have a better idea of the number of
 # measurements and of their distribution:
 
 ggplot(data = diamonds, 
@@ -229,13 +356,13 @@ ggplot(data = diamonds,
 
 
 
-# ## Plotting time series data
-# 
+# ## Grouping via adding measures of variation and summaries to your plots
+# You can manually summarize your data.
 # Let's calculate number of records per month for airquality. First we need
 # to group the data and count records within each group:
 
 count_timeseries <- ChickWeight %>%
-                 count(Time, Diet)
+  count(Time, Diet)
 
 # 
 # Time series data can be visualized as a line plot with days
@@ -243,7 +370,7 @@ count_timeseries <- ChickWeight %>%
 ggplot(data = count_timeseries, 
        mapping = aes(x = Time,
                      y = n)) +
-     geom_line()
+  geom_line()
 
 
 # Unfortunately, this does not work because we plotted data for all the diets
@@ -254,7 +381,7 @@ ggplot(data = count_timeseries,
        mapping = aes(x = Time, 
                      y = n,
                      group = Diet)) +
-    geom_line()
+  geom_line()
 # We will expand this plot into an easier-to-read 
 # format later when we talk about faceting.
 
@@ -264,11 +391,8 @@ ggplot(data = count_timeseries,
        mapping = aes(x = Time,
                      y = n,
                      color = Diet)) +
-    geom_line()
+  geom_line()
 
-
-# ## Add measures of variation and summaries to your plots
-# You can manually summarize your data as we did above,
 # OR you could use the stat argument in geom_line.
 ggplot(data = ChickWeight,
        mapping = aes(x = Time,
@@ -276,7 +400,8 @@ ggplot(data = ChickWeight,
   geom_line(stat = "count")
 
 #geom and stat work very similarly as you can see by this
-# identical plot as previously.
+# identical plot as previously.  It's useful to know both exist,
+# because the easiest method will depend on your data's current format.
 
 #Other summary statistics are also available.
 ggplot(ChickWeight,
@@ -363,7 +488,7 @@ ggplot(data = ChickWeight,
 # with stat and stat_summary.  What to do will depend on your
 # plotting needs.
 
-# ## Faceting
+# ## Grouping via faceting
 # 
 # **`ggplot2`** has a special technique called *faceting* that allows the user to split one
 # plot into multiple plots based on a factor included in the dataset. We will use it to
@@ -407,112 +532,14 @@ ggplot(data = ChickWeight,
   facet_grid(Diet ~ .)
 
 
-# ## Customizing the appearance for accessibility and clarity
-# 
-# Usually plots with white background look more readable when printed.
-# We can set the background to white using the function `theme_bw()`.
-# Additionally, you can remove the grid:
-ggplot(data = diamonds, 
-       mapping = aes(x = carat,
-                     y = price,
-                     color = cut)) +
-  geom_point()+
-  theme_bw() +
-  theme(panel.grid = element_blank())
-
-
-# In addition to `theme_bw()`, which changes the plot background to white, **`ggplot2`**
-# comes with several other themes which can be useful to quickly change the look
-# of your visualization. The complete list of themes is available
-# at <https://ggplot2.tidyverse.org/reference/ggtheme.html>. `theme_minimal()` and
-# `theme_light()` are popular, and `theme_void()` can be useful as a starting
-# point to create a new hand-crafted theme.
-# 
-# The [ggthemes](https://jrnold.github.io/ggthemes/reference/index.html) package
-# provides a wide variety of options (including an Excel 2003 theme).
-# The [**`ggplot2`** extensions website](https://www.ggplot2-exts.org) provides a list
-# of packages that extend the capabilities of **`ggplot2`**, including additional
-# themes.
-
-# The [hrbrthemes](https://cran.r-project.org/web/packages/hrbrthemes/index.html) package
-# provides many more themes as well.
-
-# ## Changing color and shape aesthetics using scale_*_
-# 
-# Another layer to add to our plot is aesthetic scaling using variations on 
-# scale_*_continuous(), scale_*_discrete(), and scale_*_manual(values=c()).
-# (More options are shown on the cheatsheet.)  The asterisk is replaced with the aes()
-# you need to use, such as fill, color, or shape.
-
-diamond_carat_price_plot <- ggplot(data = diamonds, 
-                            mapping = aes(x = carat,
-                                          y = price,
-                                          color = cut)) +
-  geom_point()+
-  theme_bw() +
-  theme(panel.grid = element_blank())
-
-diamond_carat_price_plot + 
-  scale_color_brewer(palette = "Blues")
-
-# To show all palette choices:
-RColorBrewer::display.brewer.all()
-
-# This doesn't help guide us for colorblind accessibility,
-# but there is argument to specify this.
-
-RColorBrewer::display.brewer.all(colorblindFriendly = TRUE)
-
-# You can also specify the type of color set you want.
-# "div" (diverging color gradients with pale area in middle of range),
-# "qual" (qualitative that do not imply magnitude changes),
-# "seq" (sequences from low to high values),
-# or "all" (which is default)
-
-RColorBrewer::display.brewer.all(type = "qual",
-                                 colorblindFriendly = FALSE)
-RColorBrewer::display.brewer.all(type = "qual",
-                                 colorblindFriendly = TRUE)
-
-# If you'd like to go directly to printing in black and white (or consider your readers
-# may print a paper out in black-and-white to read), there is a scale for that.
-
-diamond_carat_price_plot + 
-  scale_color_grey(start = 0.2, end = 0.8, na.value = "red")
-
-
-# Using shapes or line types instead of colors to distinguish among values can also make figures
-# more accessible or easier to read in black-and-white.  Let's go back to our weight and length 
-# plot.  Let's try to distinguish among plot types.
-
-
-# We'll save the main plot as an object so we don't have to retype it to test each aes().
-
-# Let's first test using default colors.
-diamond_carat_price_plot
-# And then with RColorBrewer for a colorblind accessible palette.
-RColorBrewer::display.brewer.all(type = "seq",
-                                 colorblindFriendly = TRUE)
-
-diamond_carat_price_plot +
-  scale_color_brewer(palette = "YlGnBu")
-
-#Let's check the automated shapes.
-ggplot(data = diamonds, 
-       mapping = aes(x = carat,
-                     y = price,
-                     color = cut,
-                     shape = cut,
-                     size = 5)) +
-    geom_point()
-  
-# We can now distinguish among the plot types regardless of color printing or color-related visual impairments, making the plot easier for all readers.  This principle is called [**universal design**](https://en.wikipedia.org/wiki/Universal_design).
-# ?pch will show you all shapes as does the ggplot2 cheatsheet.
-# Additional information on making visualizations accessible
-# can be found at <https://a11yproject.com/checklist#color-contrast>.
 
 # ## Changing the axis and axis label font sizes and angle
 
+
+
+#####################
+# Producing clear, representative plots
+#####################
 # Now, let's change names of facet labels and axis titles.
 
 # First, remember this plot?
