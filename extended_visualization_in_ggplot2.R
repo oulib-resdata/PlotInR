@@ -24,14 +24,14 @@
 #         all of your document/presentation/annotations
 
 # We start by loading the required packages. 
-# **`ggplot2`** is included in the **`tidyverse`** package.
+# **`ggplot2`** and **`dplyr` are included in the **`tidyverse`** package.
 # You may need to install **`tidyverse`** or **`RColorBrewer`** 
 # if you did not do so before the workshop.
 
 
-library(tidyverse)
+library(ggplot2)
+library(dplyr)
 library(RColorBrewer)
-library(datasets)
 
 # We will be using datasets included in base R and various packages to practice plotting today.
 
@@ -66,16 +66,22 @@ library(datasets)
 # Please note today that we will be using built-in datasets.
 # They will not appear in the environment
 # and can only be loaded with certain packages.
+# mpg comes with the ggplot2 package.
+data(mpg)
 
-ggplot(data = diamonds)
+#This will appear in your environment tab as <promise>
+# The first time you use it, the full dataset will appear.
+ggplot(data = mpg)
+head(mpg)
 
+# - define a mapping (using the aesthetic (`aes`) function),
+# by selecting the variables to be plotted and specifying 
+# how to present them in the graph, e.g. as x/y positions 
+# or characteristics such as size, shape, color, etc.
 
-# - define a mapping (using the aesthetic (`aes`) function), by selecting the variables to be plotted and specifying how to present them in the graph, e.g. as x/y positions or characteristics such as size, shape, color, etc.
-
-
-ggplot(data = diamonds,
-       mapping = aes(x = carat,
-                     y = price))
+ggplot(data = mpg,
+       mapping = aes(x = displ,
+                     y = hwy))
 
 # 
 # - add 'geoms' - graphical representations of the data in the plot (points,
@@ -90,9 +96,9 @@ ggplot(data = diamonds,
 # let's use `geom_point()` first:
 
 
-ggplot(data = diamonds,
-       mapping = aes(x = carat,
-                     y = price)) +
+ggplot(data = mpg,
+       mapping = aes(x = displ,
+                     y = hwy)) +
   geom_point()
 
 # Thus, building plots with **`ggplot2`** is typically an iterative process.
