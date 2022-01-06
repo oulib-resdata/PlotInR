@@ -6,9 +6,9 @@
 # minutes: 150
 
 # > ### Learning Objectives
-# 
-# > * Overall: Build complex and customized plots from data in a data frame.
-# > * Understand the ggplot syntax of layers and geoms
+# > * Understand the ggplot syntax of layers and geoms to build plots,
+# >   with an emphasis on using the help/documentation to understand 
+# >   the extensive customization options.
 # > * Find appropriate plot types for your data
 #       * Create scatter plots and boxplots
 # > * Produce effective, accessible plots for your data
@@ -27,13 +27,13 @@
 # **`ggplot2`** and **`dplyr` are included in the **`tidyverse`** package.
 # You may need to install **`tidyverse`** or **`RColorBrewer`** 
 # if you did not do so before the workshop.
+# We will be using a dataset included in ggplot2 to practice plotting today.
 
 
 library(ggplot2)
 library(dplyr)
 library(RColorBrewer)
 
-# We will be using datasets included in base R and various packages to practice plotting today.
 
 #####################
 # Plotting with **`ggplot2`**: understanding the syntax
@@ -117,56 +117,43 @@ ggplot(data = mpg,
 # containing the new layer, **`ggplot2`** will not add the new layer and will return an 
 # error message.
 # 
-# # This is the correct syntax for adding layers
-
-ggplot(data = diamonds,
-       mapping = aes(x = carat,
-                     y = price)) +
+# # This is the correct syntax for adding layers (same plot as above)
+ggplot(data = mpg,
+       mapping = aes(x = displ,
+                     y = hwy)) +
   geom_point()
 # 
-# # This will not add the new layer and will return an error message
-ggplot(data = diamonds,
-       mapping = aes(x = carat,
-                     y = price))+
-  geom_point()
+# # This will not add the new layer and will plot empty plot, then return an error message
+ggplot(data = mpg,
+       mapping = aes(x = displ,
+                     y = hwy)) 
++ geom_point()
 
 
-ggplot(data = diamonds,
-       mapping = aes(x = carat,
-                     y = price)) +
-    geom_point()
-
-# 
-# Then, we start modifying this plot to extract more information from it. For
-# instance, we can add transparency (`alpha`) to avoid overplotting:
+# Next, we start modifying this plot to extract more information from it. For
+# instance, we can add transparency (`alpha`) to avoid overplotting and colors to match
+#any color scheme you might have in a presentation:
 
 
-ggplot(data = diamonds,
-       mapping = aes(x = carat,
-                     y = price)) +
-    geom_point(alpha = 0.1)
-
-
-# We can also add colors for all the points:
-ggplot(data = diamonds,
-       mapping = aes(x = carat,
-                     y = price)) +
-    geom_point(alpha = 0.1,
-               color = "blue")
+ggplot(data = mpg,
+       mapping = aes(x = displ,
+                     y = hwy)) +
+  geom_point(alpha = 0.1,
+             color = "blue")
 
 
 # To color groups in the plot differently, 
 # you could use a vector as an input to the argument **color**. 
 # **`ggplot2`** will provide a different color corresponding to 
 # different values in the vector. Here is an example where we 
-# color with **`cut`**, a categorical variable:
+# color with **`drv`**, a categorical variable:
 # Reminder: a vector is a type of object in R.
 
-ggplot(data = diamonds,
-       mapping = aes(x = carat,
-                     y = price,
-                     color = cut)) +
-    geom_point(alpha = 0.1)
+ggplot(data = mpg,
+       mapping = aes(x = displ,
+                     y = hwy,
+                     color = drv))+
+  geom_point()
 
 
 # We can also specify the aesthetics directly inside 
@@ -175,23 +162,27 @@ ggplot(data = diamonds,
 # will be determined by the x- and y-axis set up in `aes()`.
 # Here we'll use change another aes
 # called shape.
-ggplot(data = diamonds,
-       mapping = aes(x = carat,
-                     y = price,
-                     color = cut,
-                     shape = cut)) +
-  geom_point(alpha = 0.1)
+# Using shapes or line types in addition to colors to distinguish among values can also make figures
+# more accessible or easier to read in black-and-white.
+
+ggplot(data = mpg,
+       mapping = aes(x = displ,
+                     y = hwy,
+                     color = drv,
+                     shape = drv))+
+  geom_point()
+
 
 
 # Notice that we can change the aes to be located in the geom layer
 # and it will be still work.  This can be used to layer several plots,
 # which we'll do later.
-ggplot(data = diamonds) +
-  geom_point(alpha = 0.1,
-             aes(x = carat,
-                 y = price,
-                 color = cut,
-                 shape = cut))
+ggplot(data = mpg)+
+  geom_point(mapping = aes(x = displ,
+                           y = hwy,
+                           color = drv,
+                           shape = drv))
+
 
 # You can read more about the "grammar of graphics" approach taken by 
 # ggplot2 here: https://ggplot2-book.org/mastery.html .
@@ -202,14 +193,14 @@ ggplot(data = diamonds) +
 
 # > ### Challenge
 # >
-# > Use what you just learned to create a scatter plot in the diamonds dataset
-# of `price` as the  y axis and `cut` as the x-axis,
+# > Use what you just learned to create a scatter plot in the mpg dataset
+# of `hwy` (miles per gallon) as the  y axis and `drv` as the x-axis,
 # Is this a good way to show this type of data?
 
-ggplot(data = diamonds, 
-       mapping = aes(x = cut,
-                     y = price)) +
-    geom_point()
+ggplot(data = mpg,
+       mapping = aes(x = drv,
+                     y = hwy))+
+  geom_point(alpha = 0.1)
 
 # geom_point is what Wickham et al call an "individual geom" https://ggplot2-book.org/individual-geoms.html
 # It shows every data point. We'll continue using geom_point and also add in
@@ -220,9 +211,9 @@ ggplot(data = diamonds,
 # Let's use boxplots to visualize the distribution of price within 
 # each cut of diamond:
 
-ggplot(data = diamonds, 
-       mapping = aes(x = cut,
-                     y = price)) +
+ggplot(data = mpg,
+       mapping = aes(x = drv,
+                     y = hwy))+
   geom_boxplot()
 
 
@@ -231,19 +222,162 @@ ggplot(data = diamonds,
 #####################
 #### Accessibility
 # People have to be able to read your plot for it to be effective
+#Let's start by making the font big enough to read from a distance.
+ggplot(data = mpg,
+       mapping = aes(x = drv,
+                     y = hwy))+
+  geom_boxplot()+
 
-# ## Customizing the appearance for accessibility and clarity
-# 
-# Usually plots with white background look more readable when printed.
+  #The theme layer is where these customizations happen.  
+  theme(text = element_text(size = 20),
+        axis.text.x = element_text(size = 18))
+
+#It's also hard to read the sideways y-axis label.
+ggplot(data = mpg,
+       mapping = aes(x = drv,
+                     y = hwy))+
+  geom_boxplot()+
+  
+  #Let's look in help for theme (?theme) and find the angle option.  
+  theme(text = element_text(size = 20),
+        axis.text.x = element_text(size = 18),
+        axis.title.y = element_text(angle = 0))
+
+#Oops, now the y-axis label is at the top.  Check back in ?theme and see "vjust".
+ggplot(data = mpg,
+       mapping = aes(x = drv,
+                     y = hwy))+
+  geom_boxplot()+
+  
+  #Let's look in help for theme (?theme) and find the angle option.  
+  theme(text = element_text(size = 20),
+        axis.text.x = element_text(size = 18),
+        axis.title.y = element_text(angle = 0,
+                                    vjust = 0.5))
+
+#Next, let's make the details on the plot bigger.  The defaults might be fine in a manuscript,
+# but this could be hard to read at the back of a room in a presentation, or on a small
+# Zoom seminar screen.  We'll check ?geom_boxplot to find the right options.
+ggplot(data = mpg,
+       mapping = aes(x = drv,
+                     y = hwy))+
+  geom_boxplot(size = 2,
+               outlier.size = 3)+
+  theme(text = element_text(size = 20),
+        axis.text.x = element_text(size = 18),
+        axis.title.y = element_text(angle = 0,
+                                    vjust = 0.5))
+
+
+
+# As we mentioned earlier,
+# using shapes or line types instead of colors to distinguish among values can also make figures
+# more accessible or easier to read in black-and-white.
+# Let's go back to our displ and hwy 
+# plot.
+ggplot(data = mpg)+
+  geom_point(mapping = aes(x = displ,
+                           y = hwy,
+                           color = drv,
+                           shape = drv))
+
+#Challenge: update the point size and fonts to be larger.
+ggplot(data = mpg)+
+  geom_point(mapping = aes(x = displ,
+                           y = hwy,
+                           color = drv,
+                           shape = drv),
+             size = 3)+
+  theme(text = element_text(size = 20),
+        axis.text.x = element_text(size = 18),
+        axis.title.y = element_text(angle = 0,
+                                    vjust = 0.5))
+
+
+#These colors not very color-blind friendly, with both red and green present in similar
+#color saturation that don't contrast,
+# although having the different shapes helps.
+# Another layer to add to our plot is aesthetic scaling using variations on 
+# scale_*_continuous(), scale_*_discrete(), and scale_*_manual(values=c()).
+# (More options are shown on the cheatsheet.)  The asterisk is replaced with the aes()
+# you need to use, such as fill, color, or shape.
+
+# Let's use the package RColorBrewer for a colorblind accessible palette to change the color scale.
+# You can also specify the type of color set you want.
+# "div" (diverging color gradients with pale area in middle of range),
+# "qual" (qualitative that do not imply magnitude changes),
+# "seq" (sequences from low to high values),
+# or "all" (which is default)
+
+RColorBrewer::display.brewer.all(type = "qual",  #our three categories are not diverging from a central value nor are they a sequence
+                                 colorblindFriendly = TRUE)
+
+ggplot(data = mpg)+
+  geom_point(mapping = aes(x = displ,
+                           y = hwy,
+                           color = drv,
+                           shape = drv),
+             size = 3)+
+  theme(text = element_text(size = 20),
+        axis.text.x = element_text(size = 18),
+        axis.title.y = element_text(angle = 0,
+                                    vjust = 0.5))+
+  #The new layer we add here is a layer specifying the color palette.
+  scale_color_brewer(palette = "Set2")
+
+# We can now distinguish among the plot types regardless of color printing
+# or color-related visual impairments, making the plot easier for all readers.
+# This principle is called [**universal design**](https://en.wikipedia.org/wiki/Universal_design).
+# ?pch will show you all shapes as does [the ggplot2 cheatsheet](https://raw.githubusercontent.com/rstudio/cheatsheets/main/data-visualization.pdf).
+# Additional information on making visualizations accessible
+# can be found at <https://a11yproject.com/checklist#color-contrast>.
+
+# For more on changing aesthetics using scale_*_ (color, shape, fill), see
+# [the ggplot2 cheatsheet](https://raw.githubusercontent.com/rstudio/cheatsheets/main/data-visualization.pdf)
+
+
+
+# Finally, plots with white background look more readable when printed, 
+# as well as meeting more journal standards for publication.
 # We can set the background to white using the function `theme_bw()`.
-# Additionally, you can remove the grid:
-ggplot(data = diamonds, 
-       mapping = aes(x = carat,
-                     y = price,
-                     color = cut)) +
-  geom_point()+
-  theme_bw() +
-  theme(panel.grid = element_blank())
+# Additionally, you can remove the grid.
+ggplot(data = mpg)+
+  geom_point(mapping = aes(x = displ,
+                           y = hwy,
+                           color = drv,
+                           shape = drv),
+             size = 3)+
+  # The new layer for black and white background.
+  theme_bw()+ #order matters here, it will overwrite the element_blank in theme() below if you put it afterwards.
+  theme(text = element_text(size = 20),
+        axis.text.x = element_text(size = 18),
+        axis.title.y = element_text(angle = 0,
+                                    vjust = 0.5),
+        panel.grid = element_blank() #new argument to theme to remove the panel grid lines
+        )+
+  scale_color_brewer(palette = "Set2")
+
+# ## Saving your theme customizations
+# If you like the changes you created better than the default theme, you can save them as
+# an object to be able to easily apply them to other plots you may create:
+presentation_theme <- theme(text = element_text(size = 20),
+                               axis.text.x = element_text(size = 18),
+                               axis.title.y = element_text(angle = 0,
+                                                           vjust = 0.5),
+                               panel.grid = element_blank())
+
+ggplot(data = mpg)+
+  geom_point(mapping = aes(x = displ,
+                           y = hwy,
+                           color = drv,
+                           shape = drv),
+             size = 3)+
+  # The new layer for black and white background.
+  theme_bw()+ #order matters here, it will overwrite the element_blank in theme() below if you put it afterwards.
+  presentation_theme +
+  #Note it doesn't require the () here because presentation_theme
+# is an object, not a function.
+  scale_color_brewer(palette = "Set2")
 
 
 # In addition to `theme_bw()`, which changes the plot background to white, **`ggplot2`**
@@ -262,192 +396,102 @@ ggplot(data = diamonds,
 # The [hrbrthemes](https://cran.r-project.org/web/packages/hrbrthemes/index.html) package
 # provides many more themes as well.
 
-# ## Changing color and shape aesthetics using scale_*_
-# 
-# Another layer to add to our plot is aesthetic scaling using variations on 
-# scale_*_continuous(), scale_*_discrete(), and scale_*_manual(values=c()).
-# (More options are shown on the cheatsheet.)  The asterisk is replaced with the aes()
-# you need to use, such as fill, color, or shape.
-
-diamond_carat_price_plot <- ggplot(data = diamonds, 
-                                   mapping = aes(x = carat,
-                                                 y = price,
-                                                 color = cut)) +
-  geom_point()+
-  theme_bw() +
-  theme(panel.grid = element_blank())
-
-diamond_carat_price_plot + 
-  scale_color_brewer(palette = "Blues")
-
-# To show all palette choices:
-RColorBrewer::display.brewer.all()
-
-# This doesn't help guide us for colorblind accessibility,
-# but there is argument to specify this.
-
-RColorBrewer::display.brewer.all(colorblindFriendly = TRUE)
-
-# You can also specify the type of color set you want.
-# "div" (diverging color gradients with pale area in middle of range),
-# "qual" (qualitative that do not imply magnitude changes),
-# "seq" (sequences from low to high values),
-# or "all" (which is default)
-
-RColorBrewer::display.brewer.all(type = "qual",
-                                 colorblindFriendly = FALSE)
-RColorBrewer::display.brewer.all(type = "qual",
-                                 colorblindFriendly = TRUE)
-
-# If you'd like to go directly to printing in black and white (or consider your readers
-# may print a paper out in black-and-white to read), there is a scale for that.
-
-diamond_carat_price_plot + 
-  scale_color_grey(start = 0.2, end = 0.8, na.value = "red")
 
 
-# Using shapes or line types instead of colors to distinguish among values can also make figures
-# more accessible or easier to read in black-and-white.  Let's go back to our weight and length 
-# plot.  Let's try to distinguish among plot types.
-
-
-# We'll save the main plot as an object so we don't have to retype it to test each aes().
-
-# Let's first test using default colors.
-diamond_carat_price_plot
-# And then with RColorBrewer for a colorblind accessible palette.
-RColorBrewer::display.brewer.all(type = "seq",
-                                 colorblindFriendly = TRUE)
-
-diamond_carat_price_plot +
-  scale_color_brewer(palette = "YlGnBu")
-
-#Let's check the automated shapes.
-ggplot(data = diamonds, 
-       mapping = aes(x = carat,
-                     y = price,
-                     color = cut,
-                     shape = cut,
-                     size = 5)) +
-  geom_point()
-
-# We can now distinguish among the plot types regardless of color printing or color-related visual impairments, making the plot easier for all readers.  This principle is called [**universal design**](https://en.wikipedia.org/wiki/Universal_design).
-# ?pch will show you all shapes as does the ggplot2 cheatsheet.
-# Additional information on making visualizations accessible
-# can be found at <https://a11yproject.com/checklist#color-contrast>.
 
 
 #### Adding summary statistics to increase effectiveness.
-# By adding a boxplot to a geom_point plot,
+# Now that the plot is accessible, let's make sure we communicate to our viewer more effectively.
+# Two ways we can do this are by adding summary information and grouping.
+
+# For example, by adding a collective/summary geom (boxplot) to a geom_jitter plot,
 # we can have a better idea of the number of
 # measurements and of their distribution:
+ggplot(data = mpg,
+       mapping = aes(x = drv,
+                     y = hwy))+
+  geom_boxplot(size = 2,
+               outlier.size = 3)+
+  geom_jitter(alpha = 0.3)+
+  theme_bw()+
+  presentation_theme
 
-ggplot(data = diamonds, 
-       mapping = aes(x = cut,
-                     y = price)) +
-    geom_boxplot(alpha = 0) +
-    geom_jitter(alpha = 0.3, 
-                color = "tomato")
+
 
 # Challenge
 # Notice how the boxplot layer is behind the jitter layer? What do you need to
 # change in the code to put the boxplot in front of the points such that it's not
 # hidden?
-ggplot(data = diamonds, 
-       mapping = aes(x = cut,
-                     y = price)) +
-  geom_jitter(alpha = 0.3, 
-              color = "tomato") +
-  geom_boxplot(alpha = 0)
+ggplot(data = mpg,
+       mapping = aes(x = drv,
+                     y = hwy))+
+  geom_jitter(alpha = 0.3)+
+  # ANSWER: change the layer order!
+  geom_boxplot(size = 2,
+               outlier.size = 3,
+               alpha = 0.1)+  #BONUS: make the boxplot transparent to see all the points
+  theme_bw()+
+  presentation_theme
 
 
 
-# ## Grouping via adding measures of variation and summaries to your plots
-# You can manually summarize your data.
+# Some collective geoms add summaries/variation automatically (like boxplots and violin plots)
+# What if we want to add means and counts and error bars?  And how do we do this per group?
+# You can do this by manually summarizing your data OR by using a geom that summarizes.
 # Let's calculate number of records per month for airquality. First we need
 # to group the data and count records within each group:
 
-count_timeseries <- ChickWeight %>%
-  count(Time, Diet)
+mpg_summaries <- mpg %>%
+  group_by(drv) %>%
+  summarize(avg_hwy = mean(hwy),
+            n_hwy = n())
 
-# 
-# Time series data can be visualized as a line plot with days
-# on the x axis and counts on the y axis:
-ggplot(data = count_timeseries, 
-       mapping = aes(x = Time,
-                     y = n)) +
-  geom_line()
+# Then plot x (drv) and y (mean hwy)
+ggplot(data = mpg_summaries, 
+       mapping = aes(x = drv,
+                     y = avg_hwy)) +
+  geom_point()+
+  theme_bw()+
+  presentation_theme
 
 
-# Unfortunately, this does not work because we plotted data for all the diets
-# together. We need to tell ggplot to draw a line for each diets by modifying
-# the aesthetic function to include `group = Diet`:
+# Unfortunately, now if we want to add any other summaries (like error bars)
+# or groups (by per manufacturer or class), we'll have to go back to the data frame
+# and manually change the group_by.  We can dynamically do this
+# if we use the aesthetic arguments
+# to group such as color and fill like we did earlier.
+ggplot(data = mpg,
+       mapping = aes(x = drv,
+                     y = hwy,
+                     fill = class)) +
+  geom_boxplot()+
+  theme_bw()+
+  presentation_theme
 
-ggplot(data = count_timeseries, 
-       mapping = aes(x = Time, 
-                     y = n,
-                     group = Diet)) +
-  geom_line()
-# We will expand this plot into an easier-to-read 
-# format later when we talk about faceting.
-
-# We will be able to distinguish diets in the plot
-# if we add colors (using `color` also automatically groups the data):
-ggplot(data = count_timeseries,
-       mapping = aes(x = Time,
-                     y = n,
-                     color = Diet)) +
-  geom_line()
-
-# OR you could use the stat argument in geom_line.
-ggplot(data = ChickWeight,
-       mapping = aes(x = Time,
-                     color = Diet)) +
-  geom_line(stat = "count")
-
-#geom and stat work very similarly as you can see by this
-# identical plot as previously.  It's useful to know both exist,
-# because the easiest method will depend on your data's current format.
-
-#Other summary statistics are also available.
-ggplot(ChickWeight,
-       aes(x = Time,
-           y = weight,
-           color = Diet)) +
-  geom_point(stat='summary', 
-             fun.y=mean) #new version is fun = mean
+# We can use the geom's stat argument to get collective 
+# summaries other than quantiles.
+ggplot(data = mpg,
+       mapping = aes(x = drv,
+                     y = hwy,
+                     color = class
+                     )) + 
+  geom_point(size = 5,
+             stat='summary', 
+             fun=mean, #old version is fun.y = mean
+             position = position_dodge(width = 0.5) #required so they don't overlap
+  )+
+  theme_bw()+
+  presentation_theme
 
 
 # It's related to the stat_summary() layer that we'll try next. 
 # Here we'll summarize means and standard deviations 
 # for one continuous variable and one categorical variable.
-ggplot(ChickWeight,
-       aes(x = Time,
-           weight,
-           color = Diet)) +
-  stat_summary(geom = "errorbar", 
-               fun.y = mean,
-               #use fun = mean on newest version of R
-               fun.ymax = function (x) {mean (x) + sd(x, na.rm = TRUE)},
-               #use fun.max on newest version of R
-               fun.ymin = function (x) {mean (x) - sd(x, na.rm = TRUE)}
-               #use fun.min on newest version of R
-               )+
-  stat_summary(geom = "point",
-               fun.y = mean,
-               #use fun = mean on newest version of R
-               size = 5)
-
-
-
-# We can fix the overlap by setting displacement width
-# We'll make sure both the point and the error bars match up.
-dodge_width_for_diets <- 0.9
-
-ggplot(ChickWeight,
-       aes(x = Time,
-           weight,
-           color = Diet)) +
+ggplot(data = mpg,
+       mapping = aes(x = drv,
+                     y = hwy,
+                     color = class
+       )) + 
   stat_summary(geom = "errorbar", 
                fun.y = mean,
                #use fun = mean on newest version of R
@@ -455,63 +499,57 @@ ggplot(ChickWeight,
                #use fun.max on newest version of R
                fun.ymin = function (x) {mean (x) - sd(x, na.rm = TRUE)},
                #use fun.min on newest version of R
-               position = position_dodge(width = dodge_width_for_diets))+
+               position = position_dodge(width = 0.5)
+  )+
   stat_summary(geom = "point",
                fun.y = mean,
                #use fun = mean on newest version of R
                size = 5,
-               position = position_dodge(width = dodge_width_for_diets))
+               position = position_dodge(width = 0.5))+
 
-# This example shows we can add multiple summaries using group.
-ggplot(data = ChickWeight,
-       mapping = aes(y = weight,
-                     x = Diet)) +
+  theme_bw()+
+  presentation_theme
+
+
+#geom and stat work very similarly as you can see by this
+# identical plot as previously.  It's useful to know both exist,
+# because the easiest method will depend on your data's current format.
+
+# This is just a brief introduction to the changes you can do
+# with stat and stat_summary.  What to do will depend on your
+# plotting needs, including adding means to boxplots, 
+# adding different error bars, etc.
+
+# We will expand this plot into a different format now in 
+# Grouping via faceting
+# 
+# **`ggplot2`** has a special technique called *faceting* that allows the user to split one
+# plot into multiple plots based on a category included in the dataset.
+# We'll take the previous category-based plot and add a layer called
+# facet wrap.
+ggplot(data = mpg,
+       mapping = aes(x = drv,
+                     y = hwy,
+                     color = class
+       )) + 
   stat_summary(geom = "errorbar", 
                fun.y = mean,
                #use fun = mean on newest version of R
                fun.ymax = function (x) {mean (x) + sd(x, na.rm = TRUE)},
                #use fun.max on newest version of R
-               fun.ymin = function (x) {mean (x) - sd(x, na.rm = TRUE)}
+               fun.ymin = function (x) {mean (x) - sd(x, na.rm = TRUE)},
                #use fun.min on newest version of R
-               )+
+               position = position_dodge(width = 0.5)
+  )+
   stat_summary(geom = "point",
                fun.y = mean,
                #use fun = mean on newest version of R
-               size = 5)+
-  stat_summary(data = ChickWeight,
-               mapping = aes(y = weight,
-                             x = Diet,
-                             group = as.factor(Chick)),
-               geom = "point",
-               fun.y = mean
-               #use fun = mean on newest version of R
-               )+
-  labs(x = "Diet",
-       y = "Weight")
-
-
-# This is just a brief introduction to the changes you can do
-# with stat and stat_summary.  What to do will depend on your
-# plotting needs.
-
-# ## Grouping via faceting
-# 
-# **`ggplot2`** has a special technique called *faceting* that allows the user to split one
-# plot into multiple plots based on a factor included in the dataset. We will use it to
-# make a time series plot for each diet in ChickWeights:
-# We'll take the previous color-based plot and add a layer called
-# facet wrap.
-ggplot(data = ChickWeight,
-       mapping = aes(x = Time,
-                     color = Diet)) +
-  geom_line(stat = "count")+
-  facet_wrap(~ Diet)
-
-#Remove color = Diet to remove this extra piece of info.
-ggplot(data = ChickWeight,
-       mapping = aes(x = Time)) +
-  geom_line(stat = "count")+
-  facet_wrap(~ Diet)
+               size = 5,
+               position = position_dodge(width = 0.5))+
+  
+  theme_bw()+
+  presentation_theme +
+  facet_wrap( ~ class)
 
 # The `facet_wrap` geometry extracts plots into an arbitrary number of dimensions
 # to allow them to cleanly fit on one page. On the other hand, the `facet_grid`
@@ -519,392 +557,141 @@ ggplot(data = ChickWeight,
 # arranged via formula notation (`rows ~ columns`; a `.` can be used as
 # a placeholder that indicates only one row or column).
 # 
-# Let's modify the previous plot to compare how the weights on different diets
-# have changed through time:
-
+# Let's modify the previous plot to present more info.
+ggplot(data = mpg,
+       mapping = aes(x = displ,
+                     y = hwy,
+                     color = as.factor(cyl)
+       )) + 
+  stat_summary(geom = "errorbar", 
+               fun.y = mean,
+               #use fun = mean on newest version of R
+               fun.ymax = function (x) {mean (x) + sd(x, na.rm = TRUE)},
+               #use fun.max on newest version of R
+               fun.ymin = function (x) {mean (x) - sd(x, na.rm = TRUE)},
+               #use fun.min on newest version of R
+               position = position_dodge(width = 0.5)
+  )+
+  stat_summary(geom = "point",
+               fun.y = mean,
+               #use fun = mean on newest version of R
+               size = 5,
+               position = position_dodge(width = 0.5))+
   
-# One column, facet by rows
-ggplot(data = ChickWeight,
-       mapping = aes(x = Time)) +
-  geom_line(stat = "count")+
-  facet_grid(. ~ Diet)
-
-
-
-# One row, facet by column
-ggplot(data = ChickWeight,
-       mapping = aes(x = Time)) +
-  geom_line(stat = "count")+
-  facet_grid(Diet ~ .)
-
-
-
-# ## Changing the axis and axis label font sizes and angle
-
+  theme_bw()+
+  presentation_theme +
+  facet_grid(drv ~ class)
 
 
 #####################
 # Producing clear, representative plots
 #####################
 # Now, let's change names of facet labels and axis titles.
+# The facet labels are not informative, so we use a labeller function
+# add the variable name.  
 
-# First, remember this plot?
-# One column, facet by rows
-ggplot(data = ChickWeight,
-       mapping = aes(x = Time)) +
-  geom_line(stat = "count")+
-  facet_grid(. ~ Diet)
-
-#The facet labels are not informative, so we use a labeller function
-# add the variable name.  You can also write your own labeller function,
-# but that is beyond the scope of this workshop.
-
-ggplot(data = ChickWeight,
-       mapping = aes(x = Time)) +
-  geom_line(stat = "count")+
-  facet_grid(. ~ Diet,
-             labeller = label_both)
-
-# Here we give the axes have more informative names. 
-ggplot(data = ChickWeight,
-       mapping = aes(x = Time)) +
-  geom_line(stat = "count") +
-  facet_grid(. ~ Diet,
-             labeller = label_both) +
-  theme_bw() +
-  theme(panel.grid = element_blank())+
-  labs(title = "Sample size of chicks during diet experiment",
-       x = "Time of observation",
-       y = "Number of individuals") +
-  theme_bw()
-
-# Note that it is also possible to change the fonts of your plots. If you are on
-# Windows, you may have to install
-# the [**`extrafont`** package](https://github.com/wch/extrafont), and follow the
-# instructions included in the README for this package.
-
-# ### Challenge
-# 
-# Let's change the orientation of the labels
-# and adjust them vertically and horizontally 
-# so they don't overlap if they are longer. 
-# (Ours are short but longer names would be a problem.)
-# * Use help for element_text to find the argument to adjust the text angle.
-# * You can use a 90-degree angle, or experiment to find the appropriate angle.
-
-ggplot(data = ChickWeight,
-       mapping = aes(x = Time)) +
-  geom_line(stat = "count") +
-  facet_grid(. ~ Diet,
-             labeller = label_both)+
-  labs(title = "Sample size of chicks during diet experiment",
-       x = "Time of observation",
-       y = "Number of individuals") +
-  theme_bw() +
-  theme(text = element_text(size = 16),
-        axis.text.x = element_text(colour = "grey80",
-                                     size = 12,
-                                     angle = 45,
-                                     hjust = 0.5, 
-                                     vjust = 0.5),
-        axis.title.y = element_text(angle = 0,
-                                    vjust = 0.5))
-
-# ## Customize legends and add text for clarity
-
-# You can change the default value of the legend title.
-ggplot(data = diamonds,
-       mapping = aes(x = carat,
-                     y = price,
-                     color = cut)) +
-  geom_point() +
-  labs(x = "Carats",
-       y = "Price") +
-  theme_bw()+
-  theme(axis.text.x = element_text(size = 12),
-        axis.text.y = element_text(size = 12),
-        text = element_text(size = 16))+
-  guides(color=guide_legend(title="Quality of cut"))+
-  scale_color_brewer(type = "seq", palette = 18)
-
-# an equally valid way to change it.
-ggplot(data = diamonds,
-       mapping = aes(x = carat,
-                     y = price,
-                     color = cut)) +
-  geom_point() +
-  labs(x = "Carats",
-       y = "Price") +
-  theme_bw()+
-  theme(axis.text.x = element_text(size = 12),
-        axis.text.y = element_text(size = 12),
-        text = element_text(size = 16))+
-  scale_color_brewer(type = "seq",
-                     palette = 18,
-                     name = "Quality of cut")
-
-# Or in labs().
-ggplot(data = diamonds,
-       mapping = aes(x = carat,
-                     y = price,
-                     color = cut)) +
-  geom_point() +
-  labs(x = "Carats",
-       y = "Price",
-       color = "Quality of cut") +
-  theme_bw()+
-  theme(axis.text.x = element_text(size = 12),
-        axis.text.y = element_text(size = 12),
-        text = element_text(size = 16))+
-  scale_color_brewer(type = "seq",
-                     palette = 18)
-
-
-# In this plot, we could show individuals in the legend.
-ggplot(data = ChickWeight,
-       mapping = aes(x = Time,
-                     y = weight,
-                     color = as.factor(Chick))) +
-  geom_line() +
-  labs(x = "Observation time",
-       y = "Weight") +
-  theme_bw()+
-  theme(axis.text.x = element_text(size = 12),
-        axis.text.y = element_text(size = 12),
-        text = element_text(size = 16))
-
-# However, what we want is to connect individuals so readers
-# can see trends, but the identity of individual chicks is not 
-# relevant.  We'll remove the legend.
-ggplot(data = ChickWeight,
-       mapping = aes(x = Time,
-                     y = weight,
-                     color = as.factor(Chick))) +
-  geom_line() +
-  labs(x = "Observation time",
-       y = "Weight") +
-  theme_bw()+
-  theme(axis.text.x = element_text(size = 12),
-        axis.text.y = element_text(size = 12),
-        text = element_text(size = 16),
-        legend.position = "none")
-
-# Or, you may need the legend, but it needs better labels.
-ggplot(data = MASS::snails,
-       mapping = aes(x = Species,
-                     y = Deaths,
-                     fill = as.factor(Exposure))) +
-  geom_boxplot() +
-  labs(x = "Experimental Species",
-       y = "Count of snail deaths") +
-  theme_bw()+
-  theme(axis.text.x = element_text(size = 12),
-        axis.text.y = element_text(size = 12),
-        text = element_text(size = 16))+
-  scale_fill_grey(labels = c("One week",
-                               "Two weeks",
-                               "Three weeks",
-                               "Four weeks"),
-                    name = "Exposure")
-
-# Next we'll add text to graphs.
-# Perhaps you have a point graph where you want values as symbols or to add labels.
-ggplot(data = airquality,
-       mapping = aes(x = Wind,
-                     y = Ozone,
-                     color = Temp)) +
-  geom_text(label = as.factor(airquality$Month)) +
-  labs(x = "Wind",
-       y = "Ozone") +
-  theme_bw()+
-  theme(axis.text.x = element_text(size = 12),
-        axis.text.y = element_text(size = 12),
-        text = element_text(size = 16))
-
-# You can also use geom_text() to add labels.  Here we use labels instead of colors in a legend.
-# group instead of color or fill is used to get summaries for the different categories.
-# This example dataset we will call directly without loading
-# its library (`boot`).  To do this we put the library name
-# with two colons, followed by the dataset name.
-
-ggplot(data = boot::poisons,
-       mapping = aes(x = treat,
-                     y = time,
-                     group = poison)) +
-  geom_point(stat = "summary",
-             fun.y = mean
-             #use fun = mean on newest version of R
-             )+
-  geom_text(stat = "summary",
-            fun.y = mean,
-            #use fun = mean on newest version of R
-            nudge_x = 0.1,
-            aes(label = boot::poisons$poison)) +
-  labs(x = "Treatment",
-       y = "Animal survival time") +
-  theme_bw()+
-  theme(axis.text.x = element_text(size = 12),
-        axis.text.y = element_text(size = 12),
-        text = element_text(size = 16),
-        legend.position = "none")
-
-# Finally, you can add individual text items to plots
-# using another layer function called annotate().
-# Again we have to call the dataset from its library directly.
-ggplot(data = boot::poisons,
-       mapping = aes(x = treat,
-                     y = time,
-                     group = poison)) +
-  geom_point(stat = "summary",
-             fun.y = mean)+
-            #use fun = mean on newest version of R
-  geom_text(stat = "summary",
-            fun.y = mean,
-            #use fun = mean on newest version of R
-            nudge_x = 0.1,
-            aes(label = boot::poisons$poison)) +
-  geom_hline(yintercept = 0.5)+
-  annotate(geom = "text",   
-#note this uses a text geom - you could also add line segments or points.
-           x=0.5,
-           y=0.525,
-           hjust = "left",
-           label="Survival time within range")+
-  labs(x = "Treatment",
-       y = "Animal survival time") +
-  theme_bw()+
-  theme(axis.text.x = element_text(size = 12),
-        axis.text.y = element_text(size = 12),
-        text = element_text(size = 16),
-        legend.position = "none")
-
-
-# ## Saving your theme customizations
-# If you like the changes you created better than the default theme, you can save them as
-# an object to be able to easily apply them to other plots you may create:
-# 
-
-presentation_theme <-  theme(text = element_text(size = 16),
-        axis.text.x = element_text(colour = "black",
-                                   size = 20,
-                                   hjust = 0.5, 
-                                   vjust = 0.5),
-        axis.title.y = element_text(angle = 0,
-                                    vjust = 0.5))
-
-ggplot(data = boot::poisons,
-       mapping = aes(x = treat,
-                     y = time,
-                     group = poison)) +
-  geom_point(stat = "summary",
-             fun.y = mean)+
-            #use fun = mean on newest version of R
-  geom_text(stat = "summary",
-            fun.y = mean,
-            #use fun = mean on newest version of R
-            nudge_x = 0.1,
-            aes(label = boot::poisons$poison)) +
-  geom_hline(yintercept = 0.5)+
-  annotate(geom = "text",   
-           #note this uses a text geom - you could also add line segments or points.
-           x=0.5,
-           y=0.525,
-           hjust = "left",
-           label="Survival time within range")+
-  labs(x = "Treatment",
-       y = "Animal survival time") +
-  theme_bw()+
-  presentation_theme
-
-#Note it doesn't require the () here because presentation_theme
-# is an object, not a function.
-
-# ## Arranging and exporting plots
-# Faceting is a great tool for splitting one plot into multiple plots, 
-# but sometimes you may want to produce a single figure that contains 
-# multiple plots using different variables or even different data frames.
-# The **`gridExtra`** package allows us to combine separate ggplots into a single
-# figure using `grid.arrange()`:
-
-install.packages("gridExtra")
-library(gridExtra)
-
-individual_weight_boxplot <- ggplot(data = ChickWeight,
-                             mapping = aes(x = Time,
-                                           y = weight,
-                                           color = as.factor(Chick))) +
-  geom_line() +
-  labs(x = "Observation time",
-       y = "Individual Weight") +
-  theme_bw()+
-  theme(axis.text.x = element_text(size = 12),
-        axis.text.y = element_text(size = 12),
-        text = element_text(size = 16),
-        legend.position = "none")
-
-dodge_width_for_diets <- 0.9
-diet_means_sd_plot <- ggplot(ChickWeight,
-       aes(x = Time,
-           weight,
-           color = Diet)) +
-  labs(y = "Mean and sd weights")+
+ggplot(data = mpg,
+       mapping = aes(x = displ,
+                     y = hwy,
+                     color = as.factor(cyl)
+       )) + 
   stat_summary(geom = "errorbar", 
-               fun.y = mean, #use fun = mean on newest version of R
+               fun.y = mean,
+               #use fun = mean on newest version of R
                fun.ymax = function (x) {mean (x) + sd(x, na.rm = TRUE)},
                #use fun.max on newest version of R
                fun.ymin = function (x) {mean (x) - sd(x, na.rm = TRUE)},
                #use fun.min on newest version of R
-               position = position_dodge(width = dodge_width_for_diets))+
+               position = position_dodge(width = 0.5)
+  )+
   stat_summary(geom = "point",
                fun.y = mean,
+               #use fun = mean on newest version of R
                size = 5,
-               position = position_dodge(width = dodge_width_for_diets))+
+               position = position_dodge(width = 0.5))+
+  
   theme_bw()+
-  presentation_theme
+  presentation_theme +
+  facet_grid(drv ~ class,
+             labeller = label_both # NEW LABELLER FUNCTION
+             )
+# You can also write your own labeller function,
+# but that is beyond the scope of this workshop.
 
 
-grid.arrange(diet_means_sd_plot,
-             individual_weight_boxplot,
-             ncol = 2, 
-             widths = c(6, 4))
+#Next, let's go back to a simpler plot, and learn how
+# to give the axes have more informative names. 
+ggplot(data = mpg,
+       mapping = aes(x = displ,
+                     y = hwy,
+                     color = as.factor(cyl)
+       )) + 
+  geom_point(size = 6)+
+  theme_bw()+
+  presentation_theme +
+  labs(
+       x = "Displacement",
+       y = "Highway mileage (mpg)")+
+  theme(axis.title.y = element_text(angle = 90)) #add more theme to rotate
 
-# In addition to the `ncol` and `nrow` arguments, used to make simple arrangements,
-# there are tools for constructing more complex layouts at
-# https://cran.r-project.org/web/packages/gridExtra/vignettes/arrangeGrob.html .
-# 
-# After creating your plot, you can save it to a file in your favorite format.
-# The Export tab in the **Plot** pane in RStudio will save your plots at low resolution,
-# which will not be accepted by many journals and will not scale well for posters. 
-# 
-# Instead, use the `ggsave()` function, which allows you easily change the dimension
-# and resolution of your plot by adjusting the appropriate arguments (`width`, `height`,
-# and `dpi`). 
-# 
-# Make sure you create the `fig_output/`
-# folder in your working directory first.
-
-ggsave("fig_output/diet_means_sd_plot.png",
-       diet_means_sd_plot,
-       width = 15,
-       height = 10)
-
-# This also works for grid.arrange() plots.
-# Note that specifying the extension changes the file type saved.
-# check ?ggsave to see the other extensions you can use listed under the device argument.
-combo_plot <- grid.arrange(diet_means_sd_plot,
-                        individual_weight_boxplot,
-                        ncol = 2, 
-                        widths = c(6, 4))
-# Note that you don't need dpi for vector outputs like pdf, svg, or eps.
-ggsave("fig_output/combo_plot_chick_weight.pdf",
-       combo_plot, 
-       width = 10)
+# You can change the default value of the legend title.
+ggplot(data = mpg,
+       mapping = aes(x = displ,
+                     y = hwy,
+                     color = as.factor(cyl)
+       )) + 
+  geom_point(size = 6)+
+  theme_bw()+
+  presentation_theme +
+  labs(
+    x = "Displacement",
+    y = "Highway mileage (mpg)",
+    color = "Number of cylinders") +
+  theme(axis.title.y = element_text(angle = 90)) #add more theme to rotate
+#It can also be done with a guides layer (see help).
 
 
-# Note: The parameters `width` and `height` also determine the 
-# font size in the saved plot.
+# Next we'll add text to graphs.
+# Perhaps you have a point graph where you want values as symbols 
+# or to add labels.
+ggplot(data = mpg,
+       mapping = aes(x = displ,
+                     y = hwy
+       )) + 
+  geom_text(size = 6, 
+            aes(label = cyl))+
+  theme_bw()+
+  presentation_theme +
+  labs(
+    x = "Displacement",
+    y = "Highway mileage (mpg)") +
+  theme(axis.title.y = element_text(angle = 90))
+
+# Finally, you can add individual text items to plots
+# using another layer function called annotate().
+ggplot(data = mpg,
+       mapping = aes(x = displ,
+                     y = hwy
+       )) + 
+  geom_text(size = 6, 
+            aes(label = cyl))+
+  theme_bw()+
+  presentation_theme +
+  labs(
+    x = "Displacement",
+    y = "Highway mileage (mpg)") +
+  theme(axis.title.y = element_text(angle = 90))+
+  annotate(geom = "text",   
+#note this uses a text geom - you could also add line segments or points.
+           x=7,
+           y=40,
+           hjust = "right",
+           label="High displacement, high mpg cars do not exist in our dataset")
+
 
 # This wraps up our tour of editing plots in ggplot2.  
-# There are so many more things you can do as needed for
-# presentations or manuscripts.  Please feel free to reach out 
-# to me or a DAVIS information specialist for additional help with R.
+# The goal here has been to show you some of the syntax and grammar
+# ggplot2 uses, and help you understand how to use the documentation
+# and cheatsheets to find options to customize plots for your needs.
+# Please reach out to me or any of our information specialists
+# for additional help with R at libraries.ou.edu/davis .
