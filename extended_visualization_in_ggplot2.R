@@ -53,6 +53,11 @@ library(RColorBrewer)
 # ggplot graphics are built step by step by adding new elements. Adding layers in
 # this fashion allows for extensive flexibility and customization of plots.
 # 
+# If you wanted to save any of these images in vector or raster formats,
+# there are several functions to do this, but a common one is 
+# [`ggsave()`](https://www.rdocumentation.org/packages/ggplot2/versions/3.3.6/topics/ggsave).
+
+
 # To build a ggplot, we will use the following basic template that can be used for different types of plots:
 # 
 # 
@@ -209,7 +214,7 @@ ggplot(data = mpg,
 # https://ggplot2-book.org/collective-geoms.html
 # We'll use boxplot_geom today.  Boxplots show medians, quartiles, and outliers.
 # Let's use boxplots to visualize the distribution of price within 
-# each cut of diamond:
+# each value of `drv`:
 
 ggplot(data = mpg,
        mapping = aes(x = drv,
@@ -438,17 +443,17 @@ ggplot(data = mpg,
 # Some collective geoms add summaries/variation automatically (like boxplots and violin plots)
 # What if we want to add means and counts and error bars?  And how do we do this per group?
 # You can do this by manually summarizing your data OR by using a geom that summarizes.
-# Let's calculate number of records per month for airquality. First we need
-# to group the data and count records within each group:
+# Let's calculate sample size and average miles per gallon (mpg) per vehicle class.
+# First we need to group the data and count records within each group:
 
 mpg_summaries <- mpg %>%
-  group_by(drv) %>%
+  group_by(class) %>%
   summarize(avg_hwy = mean(hwy),
             n_hwy = n())
 
-# Then plot x (drv) and y (mean hwy)
+# Then plot x (class) and y (mean hwy)
 ggplot(data = mpg_summaries, 
-       mapping = aes(x = drv,
+       mapping = aes(x = class,
                      y = avg_hwy)) +
   geom_point()+
   theme_bw()+
@@ -461,9 +466,9 @@ ggplot(data = mpg_summaries,
 # if we use the aesthetic arguments
 # to group such as color and fill like we did earlier.
 ggplot(data = mpg,
-       mapping = aes(x = drv,
+       mapping = aes(x = class,
                      y = hwy,
-                     fill = class)) +
+                     fill = drv)) +
   geom_boxplot()+
   theme_bw()+
   presentation_theme
@@ -471,9 +476,9 @@ ggplot(data = mpg,
 # We can use the geom's stat argument to get collective 
 # summaries other than quantiles.
 ggplot(data = mpg,
-       mapping = aes(x = drv,
+       mapping = aes(x = class,
                      y = hwy,
-                     color = class
+                     color = drv
                      )) + 
   geom_point(size = 5,
              stat='summary', 
@@ -488,16 +493,16 @@ ggplot(data = mpg,
 # Here we'll summarize means and standard deviations 
 # for one continuous variable and one categorical variable.
 ggplot(data = mpg,
-       mapping = aes(x = drv,
+       mapping = aes(x = class,
                      y = hwy,
-                     color = class
+                     color = drv
        )) + 
   stat_summary(geom = "errorbar", 
                fun.y = mean,
                #use fun = mean on newest version of R
-               fun.ymax = function (x) {mean (x) + sd(x, na.rm = TRUE)},
+               fun.ymax = function (x) {mean (x) + sd(x, na.rm = TRUE)}, #na.rm = TRUE is not necessary with our dataset, but here to make it compatible if you use it on another dataset that contains NAs
                #use fun.max on newest version of R
-               fun.ymin = function (x) {mean (x) - sd(x, na.rm = TRUE)},
+               fun.ymin = function (x) {mean (x) - sd(x, na.rm = TRUE)}, #na.rm = TRUE is not necessary with our dataset, but here to make it compatible if you use it on another dataset that contains NAs
                #use fun.min on newest version of R
                position = position_dodge(width = 0.5)
   )+
@@ -528,16 +533,16 @@ ggplot(data = mpg,
 # We'll take the previous category-based plot and add a layer called
 # facet wrap.
 ggplot(data = mpg,
-       mapping = aes(x = drv,
+       mapping = aes(x = class,
                      y = hwy,
-                     color = class
+                     color = drv
        )) + 
   stat_summary(geom = "errorbar", 
                fun.y = mean,
                #use fun = mean on newest version of R
-               fun.ymax = function (x) {mean (x) + sd(x, na.rm = TRUE)},
+               fun.ymax = function (x) {mean (x) + sd(x, na.rm = TRUE)}, #na.rm = TRUE is not necessary with our dataset, but here to make it compatible if you use it on another dataset that contains NAs
                #use fun.max on newest version of R
-               fun.ymin = function (x) {mean (x) - sd(x, na.rm = TRUE)},
+               fun.ymin = function (x) {mean (x) - sd(x, na.rm = TRUE)}, #na.rm = TRUE is not necessary with our dataset, but here to make it compatible if you use it on another dataset that contains NAs
                #use fun.min on newest version of R
                position = position_dodge(width = 0.5)
   )+
@@ -566,9 +571,9 @@ ggplot(data = mpg,
   stat_summary(geom = "errorbar", 
                fun.y = mean,
                #use fun = mean on newest version of R
-               fun.ymax = function (x) {mean (x) + sd(x, na.rm = TRUE)},
+               fun.ymax = function (x) {mean (x) + sd(x, na.rm = TRUE)}, #na.rm = TRUE is not necessary with our dataset, but here to make it compatible if you use it on another dataset that contains NAs
                #use fun.max on newest version of R
-               fun.ymin = function (x) {mean (x) - sd(x, na.rm = TRUE)},
+               fun.ymin = function (x) {mean (x) - sd(x, na.rm = TRUE)}, #na.rm = TRUE is not necessary with our dataset, but here to make it compatible if you use it on another dataset that contains NAs
                #use fun.min on newest version of R
                position = position_dodge(width = 0.5)
   )+
@@ -598,9 +603,9 @@ ggplot(data = mpg,
   stat_summary(geom = "errorbar", 
                fun.y = mean,
                #use fun = mean on newest version of R
-               fun.ymax = function (x) {mean (x) + sd(x, na.rm = TRUE)},
+               fun.ymax = function (x) {mean (x) + sd(x, na.rm = TRUE)}, #na.rm = TRUE is not necessary with our dataset, but here to make it compatible if you use it on another dataset that contains NAs
                #use fun.max on newest version of R
-               fun.ymin = function (x) {mean (x) - sd(x, na.rm = TRUE)},
+               fun.ymin = function (x) {mean (x) - sd(x, na.rm = TRUE)}, #na.rm = TRUE is not necessary with our dataset, but here to make it compatible if you use it on another dataset that contains NAs
                #use fun.min on newest version of R
                position = position_dodge(width = 0.5)
   )+
