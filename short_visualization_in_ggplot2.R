@@ -10,18 +10,13 @@
 # >   with an emphasis on using the help/documentation to understand 
 # >   the extensive customization options.
 # > * Find appropriate plot types for your data
-#       * Create scatter plots and boxplots
+#       * Create density plots and boxplots
 # > * Produce effective, accessible plots for your data
 #       * Modify the aesthetics, labels, and theme of an existing ggplot plot,
 #         focusing on accessibility (colorblind palettes, using shapes and 
 #         line types together, changing font size, removing extraneous lines)
-# >     * Add measures of variation and summaries to plots
-# >     * Apply faceting or geom_line() to plots in datasets with groupings
-# > * Produce clear, representative aesthetics and labels for your plot
-#       * Modify the aesthetics of an existing ggplot plot for 
-#         clarity (checking shapes and sizes for proportionality)
-#       * Add and modify labels, annotations, and legends to match 
-#         all of your document/presentation/annotations
+# >     * Add measures of variation and summaries to plots TBD
+# >     * Apply faceting or geom_line() to plots in datasets with groupings TBD
 
 # We start by loading the required packages. 
 # **`ggplot2`** and **`dplyr` are included in the **`tidyverse`** package.
