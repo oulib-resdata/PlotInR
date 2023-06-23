@@ -90,7 +90,7 @@ ggplot(data = mpg,
 #   
 #       * `geom_point()` for scatter plots, dot plots, etc.
 #       * `geom_boxplot()` for, well, boxplots!
-#       * `geom_line()` for trend lines, time series, etc.  
+#       * `geom_density()` for distribution densities  
 
 # To add a geom to the plot use the `+` operator. Because we have two continuous variables,
 # let's use `geom_point()` first:
@@ -190,24 +190,23 @@ ggplot(data = mpg)+
 #####################
 # Finding appropriate plot types
 #####################
-
-# > ### Challenge
-# >
-# > Use what you just learned to create a scatter plot in the mpg dataset
-# of `hwy` (miles per gallon) as the  y axis and `drv` as the x-axis,
-# Is this a good way to show this type of data?
-
-ggplot(data = mpg,
-       mapping = aes(x = drv,
-                     y = hwy))+
-  geom_point(alpha = 0.1)
-
 # geom_point is what Wickham et al call an "individual geom" https://ggplot2-book.org/individual-geoms.html
 # It shows every data point. We'll continue using geom_point and also add in
 # geom_line later in our workshop today.
 # A more appropriate way to visualize data in categories is collective geoms.
 # https://ggplot2-book.org/collective-geoms.html
-# We'll use boxplot_geom today.  Boxplots show medians, quartiles, and outliers.
+
+# First we'll demonstrate geom_density, which takes one numeric argument.
+
+ggplot(data = mpg,
+       mapping = aes(color = drv,
+                     linetype = drv,
+                     x = hwy))+
+  geom_density()
+
+
+
+# We'll do examples with boxplot_geom today.  Boxplots show medians, quartiles, and outliers.
 # Let's use boxplots to visualize the distribution of price within 
 # each value of `drv`:
 
