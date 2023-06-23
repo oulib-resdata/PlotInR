@@ -3,7 +3,7 @@
 # modified by Claire M. Curry (OU Libraries - cmcurry@ou.edu) 
 # under CC BY 4.0 and MIT licenses for instructional materials and software
 
-# minutes: 150
+# minutes: 75
 
 # > ### Learning Objectives
 # > * Understand the ggplot syntax of layers and geoms to build plots,
@@ -273,32 +273,6 @@ ggplot(data = mpg,
         axis.title.y = element_text(angle = 0,
                                     vjust = 0.5))
 
-
-
-# As we mentioned earlier,
-# using shapes or line types instead of colors to distinguish among values can also make figures
-# more accessible or easier to read in black-and-white.
-# Let's go back to our displ and hwy 
-# plot.
-ggplot(data = mpg)+
-  geom_point(mapping = aes(x = displ,
-                           y = hwy,
-                           color = drv,
-                           shape = drv))
-
-#Challenge: update the point size and fonts to be larger.
-ggplot(data = mpg)+
-  geom_point(mapping = aes(x = displ,
-                           y = hwy,
-                           color = drv,
-                           shape = drv),
-             size = 3)+
-  theme(text = element_text(size = 20),
-        axis.text.x = element_text(size = 18),
-        axis.title.y = element_text(angle = 0,
-                                    vjust = 0.5))
-
-
 #These colors not very color-blind friendly, with both red and green present in similar
 #color saturation that don't contrast,
 # although having the different shapes helps.
@@ -443,53 +417,9 @@ ggplot(data = mpg,
 # Some collective geoms add summaries/variation automatically (like boxplots and violin plots)
 # What if we want to add means and counts and error bars?  And how do we do this per group?
 # You can do this by manually summarizing your data OR by using a geom that summarizes.
-# Let's calculate sample size and average miles per gallon (mpg) per vehicle class.
-# First we need to group the data and count records within each group:
+# We can use stat_summary to get collective 
+# summaries other than quantiles (which are in geom_boxplot)
 
-mpg_summaries <- mpg %>%
-  group_by(class) %>%
-  summarize(avg_hwy = mean(hwy),
-            n_hwy = n())
-
-# Then plot x (class) and y (mean hwy)
-ggplot(data = mpg_summaries, 
-       mapping = aes(x = class,
-                     y = avg_hwy)) +
-  geom_point()+
-  theme_bw()+
-  presentation_theme
-
-
-# Unfortunately, now if we want to add any other summaries (like error bars)
-# or groups (by per manufacturer or class), we'll have to go back to the data frame
-# and manually change the group_by.  We can dynamically do this
-# if we use the aesthetic arguments
-# to group such as color and fill like we did earlier.
-ggplot(data = mpg,
-       mapping = aes(x = class,
-                     y = hwy,
-                     fill = drv)) +
-  geom_boxplot()+
-  theme_bw()+
-  presentation_theme
-
-# We can use the geom's stat argument to get collective 
-# summaries other than quantiles.
-ggplot(data = mpg,
-       mapping = aes(x = class,
-                     y = hwy,
-                     color = drv
-                     )) + 
-  geom_point(size = 5,
-             stat='summary', 
-             fun=mean, #old version is fun.y = mean
-             position = position_dodge(width = 0.5) #required so they don't overlap
-  )+
-  theme_bw()+
-  presentation_theme
-
-
-# It's related to the stat_summary() layer that we'll try next. 
 # Here we'll summarize means and standard deviations 
 # for one continuous variable and one categorical variable.
 ggplot(data = mpg,
@@ -588,113 +518,9 @@ ggplot(data = mpg,
   facet_grid(drv ~ class)
 
 
-#####################
-# Producing clear, representative plots
-#####################
-# Now, let's change names of facet labels and axis titles.
-# The facet labels are not informative, so we use a labeller function
-# add the variable name.  
-
-ggplot(data = mpg,
-       mapping = aes(x = displ,
-                     y = hwy,
-                     color = as.factor(cyl)
-       )) + 
-  stat_summary(geom = "errorbar", 
-               fun.y = mean,
-               #use fun = mean on newest version of R
-               fun.ymax = function (x) {mean (x) + sd(x, na.rm = TRUE)}, #na.rm = TRUE is not necessary with our dataset, but here to make it compatible if you use it on another dataset that contains NAs
-               #use fun.max on newest version of R
-               fun.ymin = function (x) {mean (x) - sd(x, na.rm = TRUE)}, #na.rm = TRUE is not necessary with our dataset, but here to make it compatible if you use it on another dataset that contains NAs
-               #use fun.min on newest version of R
-               position = position_dodge(width = 0.5)
-  )+
-  stat_summary(geom = "point",
-               fun.y = mean,
-               #use fun = mean on newest version of R
-               size = 5,
-               position = position_dodge(width = 0.5))+
-  
-  theme_bw()+
-  presentation_theme +
-  facet_grid(drv ~ class,
-             labeller = label_both # NEW LABELLER FUNCTION
-             )
-# You can also write your own labeller function,
-# but that is beyond the scope of this workshop.
 
 
-#Next, let's go back to a simpler plot, and learn how
-# to give the axes have more informative names. 
-ggplot(data = mpg,
-       mapping = aes(x = displ,
-                     y = hwy,
-                     color = as.factor(cyl)
-       )) + 
-  geom_point(size = 6)+
-  theme_bw()+
-  presentation_theme +
-  labs(
-       x = "Displacement",
-       y = "Highway mileage (mpg)")+
-  theme(axis.title.y = element_text(angle = 90)) #add more theme to rotate
-
-# You can change the default value of the legend title.
-ggplot(data = mpg,
-       mapping = aes(x = displ,
-                     y = hwy,
-                     color = as.factor(cyl)
-       )) + 
-  geom_point(size = 6)+
-  theme_bw()+
-  presentation_theme +
-  labs(
-    x = "Displacement",
-    y = "Highway mileage (mpg)",
-    color = "Number of cylinders") +
-  theme(axis.title.y = element_text(angle = 90)) #add more theme to rotate
-#It can also be done with a guides layer (see help).
-
-
-# Next we'll add text to graphs.
-# Perhaps you have a point graph where you want values as symbols 
-# or to add labels.
-ggplot(data = mpg,
-       mapping = aes(x = displ,
-                     y = hwy
-       )) + 
-  geom_text(size = 6, 
-            aes(label = cyl))+
-  theme_bw()+
-  presentation_theme +
-  labs(
-    x = "Displacement",
-    y = "Highway mileage (mpg)") +
-  theme(axis.title.y = element_text(angle = 90))
-
-# Finally, you can add individual text items to plots
-# using another layer function called annotate().
-ggplot(data = mpg,
-       mapping = aes(x = displ,
-                     y = hwy
-       )) + 
-  geom_text(size = 6, 
-            aes(label = cyl))+
-  theme_bw()+
-  presentation_theme +
-  labs(
-    x = "Displacement",
-    y = "Highway mileage (mpg)") +
-  theme(axis.title.y = element_text(angle = 90))+
-  annotate(geom = "text",   
-#note this uses a text geom - you could also add line segments or points.
-           x=7,
-           y=40,
-           hjust = "right",
-           label="High displacement, high mpg cars do not exist in our dataset")
-
-
-# This wraps up our tour of editing plots in ggplot2.  
+# This wraps up our short tour of editing plots in ggplot2.  
 # The goal here has been to show you some of the syntax and grammar
 # ggplot2 uses, and help you understand how to use the documentation
 # and cheatsheets to find options to customize plots for your needs.
