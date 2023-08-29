@@ -9,8 +9,8 @@
 # > * Understand the ggplot syntax of layers and geoms to build plots,
 # >   with an emphasis on using the help/documentation to understand 
 # >   the extensive customization options.
-# > * Find appropriate plot types for your data
-#       * Create density plots and boxplots
+# > * Throughout the lesson, examples of individual and collective
+# >   plot types (geoms) will be used to demonstrate the layers.
 # > * Produce effective, accessible plots for your data
 #       * Modify the aesthetics, labels, and theme of an existing ggplot plot,
 #         focusing on accessibility (colorblind palettes, using shapes and 
@@ -26,12 +26,11 @@
 
 
 library(ggplot2)
-library(dplyr)
 library(RColorBrewer)
 
 
 #####################
-# Plotting with **`ggplot2`**: understanding the syntax
+# Plotting with **`ggplot2`**: understanding the syntax and a sampling of plot types
 #####################
 # 
 # **`ggplot2`** is a plotting package that makes it simple to create complex plots
@@ -129,15 +128,17 @@ ggplot(data = mpg,
                      y = hwy)) 
 + geom_point()
 
+# You can also save the plot as an object and add layers to it.
+displ_hwy_plot <- ggplot(data = mpg,
+                         mapping = aes(x = displ,
+                                       y = hwy))
 
 # Next, we start modifying this plot to extract more information from it. For
 # instance, we can add transparency (`alpha`) to avoid overplotting and colors to match
 #any color scheme you might have in a presentation:
 
 
-ggplot(data = mpg,
-       mapping = aes(x = displ,
-                     y = hwy)) +
+displ_hwy_plot +
   geom_point(alpha = 0.1,
              color = "blue")
 
@@ -149,11 +150,13 @@ ggplot(data = mpg,
 # color with **`drv`**, a categorical variable:
 # Reminder: a vector is a type of object in R.
 
-ggplot(data = mpg,
-       mapping = aes(x = displ,
-                     y = hwy,
-                     color = drv))+
-  geom_point()
+displ_hwy_plot+
+  geom_point(color = "black",
+             shape = 21,
+             mapping = aes(fill = drv))
+
+# you can get all the shapes in ?pch.  Shapes 21-25 can use both fill and color.
+# Otherwise you will only encounter that distinction in some geoms, like geom_boxplot
 
 
 # We can also specify the aesthetics directly inside 
@@ -165,12 +168,11 @@ ggplot(data = mpg,
 # Using shapes or line types in addition to colors to distinguish among values can also make figures
 # more accessible or easier to read in black-and-white.
 
-ggplot(data = mpg,
-       mapping = aes(x = displ,
-                     y = hwy,
-                     color = drv,
-                     shape = drv))+
-  geom_point()
+displ_hwy_plot +
+  geom_point(mapping = aes(
+                           color = drv,
+                           shape = drv
+                           ))
 
 
 
@@ -187,9 +189,6 @@ ggplot(data = mpg)+
 # You can read more about the "grammar of graphics" approach taken by 
 # ggplot2 here: https://ggplot2-book.org/mastery.html .
 
-#####################
-# Finding appropriate plot types
-#####################
 # geom_point is what Wickham et al call an "individual geom" https://ggplot2-book.org/individual-geoms.html
 # It shows every data point. We'll continue using geom_point and also add in
 # geom_line later in our workshop today.
@@ -204,24 +203,23 @@ ggplot(data = mpg,
                      x = hwy))+
   geom_density()
 
+# How would you find out what arguments are needed for geom_col?
 
+?geom_col
 
-# We'll do examples with boxplot_geom today.  Boxplots show medians, quartiles, and outliers.
-# Let's use boxplots to visualize the distribution of price within 
-# each value of `drv`:
+# You can also find the examples on the package's website:
+# https://ggplot2.tidyverse.org/reference/geom_bar.html
 
-ggplot(data = mpg,
-       mapping = aes(x = drv,
-                     y = hwy))+
-  geom_boxplot()
-
+# You can also add summaries over individual or collective geoms,
+# which we will look at in stat_summary below.  But first, let's
+# talk about making the plots effective and accessible.
 
 #####################
 # Producing effective, accessible plots
 #####################
 #### Accessibility
 # People have to be able to read your plot for it to be effective
-#Let's start by making the font big enough to read from a distance.
+# Let's start by making the font big enough to read from a distance.
 ggplot(data = mpg,
        mapping = aes(x = drv,
                      y = hwy))+
@@ -370,6 +368,22 @@ ggplot(data = mpg)+
 # provides many more themes as well.
 
 
+# Finally, let's clean up the axis and legend labels of 
+# the previous graph using the labs() layer.
+ggplot(data = mpg)+
+  geom_point(mapping = aes(x = displ,
+                           y = hwy,
+                           color = drv,
+                           shape = drv),
+             size = 3)+
+  theme_bw()+ 
+  presentation_theme +
+  scale_color_brewer(palette = "Set2") +
+  labs(x = "Displacement (L)",
+       y = "Highway (mpg)",
+       color = "Drive type",
+       shape = "Drive type")
+
 
 
 
@@ -390,59 +404,46 @@ ggplot(data = mpg,
   presentation_theme
 
 
-
-# Challenge
-# Notice how the boxplot layer is behind the jitter layer? What do you need to
-# change in the code to put the boxplot in front of the points such that it's not
-# hidden?
-ggplot(data = mpg,
-       mapping = aes(x = drv,
-                     y = hwy))+
-  geom_jitter(alpha = 0.3)+
-  # ANSWER: change the layer order!
-  geom_boxplot(size = 2,
-               outlier.size = 3,
-               alpha = 0.1)+  #BONUS: make the boxplot transparent to see all the points
-  theme_bw()+
-  presentation_theme
-
-
-
 # Some collective geoms add summaries/variation automatically (like boxplots and violin plots)
 # What if we want to add means and counts and error bars?  And how do we do this per group?
 # You can do this by manually summarizing your data OR by using a geom that summarizes.
 # We can use stat_summary to get collective 
-# summaries other than quantiles (which are in geom_boxplot)
+# summaries.
+
 
 # Here we'll summarize means and standard deviations 
-# for one continuous variable and one categorical variable.
-ggplot(data = mpg,
-       mapping = aes(x = class,
-                     y = hwy,
-                     color = drv
+# for two continuous variables and one categorical variable.
+line_summary_plot <- ggplot(data = mpg,
+       mapping = aes(x = hwy,
+                     y = cty,
+                     color = as.factor(year)
        )) + 
   stat_summary(geom = "errorbar", 
-               fun.y = mean,
-               #use fun = mean on newest version of R
-               fun.ymax = function (x) {mean (x) + sd(x, na.rm = TRUE)}, #na.rm = TRUE is not necessary with our dataset, but here to make it compatible if you use it on another dataset that contains NAs
-               #use fun.max on newest version of R
-               fun.ymin = function (x) {mean (x) - sd(x, na.rm = TRUE)}, #na.rm = TRUE is not necessary with our dataset, but here to make it compatible if you use it on another dataset that contains NAs
-               #use fun.min on newest version of R
-               position = position_dodge(width = 0.5)
+               fun = mean,
+               #use fun.y = mean on older versions of R
+               fun.max = function (x) {mean (x) + sd(x, na.rm = TRUE)}, #na.rm = TRUE is not necessary with our dataset, but here to make it compatible if you use it on another dataset that contains NAs
+               #use fun.ymax on older versions of R
+               fun.min = function (x) {mean (x) - sd(x, na.rm = TRUE)} #na.rm = TRUE is not necessary with our dataset, but here to make it compatible if you use it on another dataset that contains NAs
+               #use fun.ymin on older versions of R
+
   )+
-  stat_summary(geom = "point",
+  stat_summary(geom = "line",
                fun.y = mean,
                #use fun = mean on newest version of R
-               size = 5,
-               position = position_dodge(width = 0.5))+
+               size = 2)+
 
   theme_bw()+
   presentation_theme
 
+# When you assign the plot to an object, you have to run the object name
+# to view the plot.
+line_summary_plot
 
-#geom and stat work very similarly as you can see by this
-# identical plot as previously.  It's useful to know both exist,
+# You could make the same plot by manually summarizing the data,
+# perhaps with dplyr grouping on year and hwy.
+# However, it's useful to know both exist,
 # because the easiest method will depend on your data's current format.
+# stat_summary is generally more flexible but occasionally not as easy.
 
 # This is just a brief introduction to the changes you can do
 # with stat and stat_summary.  What to do will depend on your
@@ -456,62 +457,23 @@ ggplot(data = mpg,
 # plot into multiple plots based on a category included in the dataset.
 # We'll take the previous category-based plot and add a layer called
 # facet wrap.
-ggplot(data = mpg,
-       mapping = aes(x = class,
-                     y = hwy,
-                     color = drv
-       )) + 
-  stat_summary(geom = "errorbar", 
-               fun.y = mean,
-               #use fun = mean on newest version of R
-               fun.ymax = function (x) {mean (x) + sd(x, na.rm = TRUE)}, #na.rm = TRUE is not necessary with our dataset, but here to make it compatible if you use it on another dataset that contains NAs
-               #use fun.max on newest version of R
-               fun.ymin = function (x) {mean (x) - sd(x, na.rm = TRUE)}, #na.rm = TRUE is not necessary with our dataset, but here to make it compatible if you use it on another dataset that contains NAs
-               #use fun.min on newest version of R
-               position = position_dodge(width = 0.5)
-  )+
-  stat_summary(geom = "point",
-               fun.y = mean,
-               #use fun = mean on newest version of R
-               size = 5,
-               position = position_dodge(width = 0.5))+
-  
-  theme_bw()+
-  presentation_theme +
-  facet_wrap( ~ class)
+facet_plot< - line_summary_plot +
+  facet_wrap( ~ cyl)
 
 # The `facet_wrap` geometry extracts plots into an arbitrary number of dimensions
 # to allow them to cleanly fit on one page. On the other hand, the `facet_grid`
 # geometry allows you to explicitly specify how you want your plots to be
 # arranged via formula notation (`rows ~ columns`; a `.` can be used as
 # a placeholder that indicates only one row or column).
-# 
-# Let's modify the previous plot to present more info.
-ggplot(data = mpg,
-       mapping = aes(x = displ,
-                     y = hwy,
-                     color = as.factor(cyl)
-       )) + 
-  stat_summary(geom = "errorbar", 
-               fun.y = mean,
-               #use fun = mean on newest version of R
-               fun.ymax = function (x) {mean (x) + sd(x, na.rm = TRUE)}, #na.rm = TRUE is not necessary with our dataset, but here to make it compatible if you use it on another dataset that contains NAs
-               #use fun.max on newest version of R
-               fun.ymin = function (x) {mean (x) - sd(x, na.rm = TRUE)}, #na.rm = TRUE is not necessary with our dataset, but here to make it compatible if you use it on another dataset that contains NAs
-               #use fun.min on newest version of R
-               position = position_dodge(width = 0.5)
-  )+
-  stat_summary(geom = "point",
-               fun.y = mean,
-               #use fun = mean on newest version of R
-               size = 5,
-               position = position_dodge(width = 0.5))+
-  
-  theme_bw()+
-  presentation_theme +
-  facet_grid(drv ~ class)
 
 
+
+# Finally, let's save.
+# you can use several default image types with the function
+# ggsave, but there are also individual functions such as png()
+# if you see that notation elsewhere or prefer it.
+# You can use help to see what the dimension units are.
+ggsave("facet_plot.png", facet_plot, width = 15, height = 10)
 
 
 # This wraps up our short tour of editing plots in ggplot2.  
@@ -519,4 +481,4 @@ ggplot(data = mpg,
 # ggplot2 uses, and help you understand how to use the documentation
 # and cheatsheets to find options to customize plots for your needs.
 # Please reach out to me or any of our information specialists
-# for additional help with R at libraries.ou.edu/davis .
+# for additional help with R at libraries.ou.edu/data .
