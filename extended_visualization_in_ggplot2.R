@@ -286,7 +286,7 @@ ggplot(data = mpg)+
                            color = drv,
                            shape = drv))
 
-#Challenge: update the point size and fonts to be larger.
+#Challenge: update the point size and fonts for a slide presentation in-person.
 ggplot(data = mpg)+
   geom_point(mapping = aes(x = displ,
                            y = hwy,
